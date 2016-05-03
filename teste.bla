@@ -1,1 +1,17 @@
-abrebloco while ( _a < 1 + 1 ) abrebloco _a=1/1; _b=2.15 fechabloco fechabloco
+int main(int b, boolean c){
+int b, boolean c
+if (a<1+ 1){
+	_a=!_b; 
+ 	_a=1/1; 
+	_b=2.15;
+	_b=( 2.15 ) - 1000
+	} 
+else
+ 	_a=1* 1; 
+	_b=2- 15
+; 		
+while(_a<1+ 1){
+ 	_a=1<1; 
+	_b=2.15 
+	} 
+}

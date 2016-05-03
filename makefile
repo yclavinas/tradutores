@@ -1,4 +1,4 @@
-prog:	rm bison flex gcc exec
+prog: bison flex gcc exec
 bison:
 	bison -d sintatico.y
 flex:

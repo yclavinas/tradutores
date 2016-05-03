@@ -41,41 +41,17 @@
    enum yytokentype {
      NUM = 258,
      ID = 259,
-     BLOCO = 260,
-     RELACIONAL = 261,
-     ATRIBUICAO = 262,
-     PRE_ = 263,
-     ARITMETICO = 264,
-     WHILE = 265,
-     FECHABLOCO = 266,
-     ABREBLOCO = 267,
-     FECHAPAR = 268,
-     ABREPAR = 269,
-     INT = 270,
-     BOOLEAN = 271,
-     ELSE = 272,
-     IF = 273,
-     CLASS = 274
+     OP_ADD = 260,
+     OP_MULT = 261,
+     WHILE = 262
    };
 #endif
 /* Tokens.  */
 #define NUM 258
 #define ID 259
-#define BLOCO 260
-#define RELACIONAL 261
-#define ATRIBUICAO 262
-#define PRE_ 263
-#define ARITMETICO 264
-#define WHILE 265
-#define FECHABLOCO 266
-#define ABREBLOCO 267
-#define FECHAPAR 268
-#define ABREPAR 269
-#define INT 270
-#define BOOLEAN 271
-#define ELSE 272
-#define IF 273
-#define CLASS 274
+#define OP_ADD 260
+#define OP_MULT 261
+#define WHILE 262
 
 
 

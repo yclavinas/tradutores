@@ -17,6 +17,11 @@
 %token ABREBLOCO
 %token FECHAPAR
 %token ABREPAR
+%token INT
+%token BOOLEAN
+%token ELSE
+%token IF
+%token CLASS
 %%
 /* Regras definindo a GLC e acoes correspondentes */
 /* neste nosso exemplo quase todas as acoes estao vazias */
@@ -26,21 +31,39 @@
 line:     '\n'
         | programa '\n'  
 ;*/
-programa:	ABREBLOCO lista_cmds FECHABLOCO		{ printf ("Programa sintaticamente correto!\n"); }
+programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 	{ printf ("Programa sintaticamente correto!\n"); }
 ;
-lista_cmds:	cmd				{;}
-			| cmd ';' lista_cmds 		{;}
+var_declaration: var 									{;}
+				| var ',' var_declaration 				{;}
 ;
-cmd:		ID ATRIBUICAO exp					{;}
-			| WHILE ABREPAR exp FECHAPAR ABREBLOCO lista_cmds FECHABLOCO      {;}
+var: type ID 
 ;
-exp:		NUM				{;}
-		| ID				{;}
-		| exp ARITMETICO exp 		{;}
-		| exp RELACIONAL exp 		{;}
+type:	INT '['  ']';
+		| BOOLEAN
+		| INT
 ;
+lista_cmds:	cmd											{;}
+			| cmd ';' lista_cmds 						{;}
+;
+cmd:		ID ATRIBUICAO exp									{;}
+			| ID '[' exp ']'	ATRIBUICAO exp					{;}
+			| IF '(' exp ')' '{' lista_cmds '}'  ELSE lista_cmds{;}
+			| WHILE '(' exp ')' '{' lista_cmds '}'      		{;}
+;
+exp:		NUM											{;}
+		| ID											{;}
+		| exp ARITMETICO exp 							{;}
+		| exp RELACIONAL exp 							{;}
+		| exp '&&' exp 									{;}
+		| exp '[' exp ']' 								{;}
+		| '!' exp  										{;}
+		| '(' exp ')'									{;}
+		| 'true' 										{;}
+		| 'false'  										{;}
+;
+
 %%
-main (int argc, char *argv[]) 
+int main (int argc, char *argv[]) 
 {
 	extern FILE *yyin;
 	extern FILE *yyout;
