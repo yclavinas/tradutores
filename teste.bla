@@ -3,7 +3,7 @@ int b, boolean c
 if (a<1+ 1){
 	_a=!_b; 
  	_a=1/1; 
-	_b=2.15;
+	_b= !(aa && bb);
 	_b=( 2.15 ) - 1000
 	} 
 else

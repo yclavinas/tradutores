@@ -4,6 +4,7 @@
 %}
 
 %%
+"&&"							{return AND;}
 main 							{return CLASS;}
 int								{return INT;}
 boolean							{return BOOLEAN;}

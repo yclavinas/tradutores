@@ -55,7 +55,8 @@
      BOOLEAN = 271,
      ELSE = 272,
      IF = 273,
-     CLASS = 274
+     CLASS = 274,
+     AND = 275
    };
 #endif
 /* Tokens.  */
@@ -76,6 +77,7 @@
 #define ELSE 272
 #define IF 273
 #define CLASS 274
+#define AND 275
 
 
 

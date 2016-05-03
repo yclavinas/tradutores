@@ -22,6 +22,7 @@
 %token ELSE
 %token IF
 %token CLASS
+%token AND
 %%
 /* Regras definindo a GLC e acoes correspondentes */
 /* neste nosso exemplo quase todas as acoes estao vazias */
@@ -54,7 +55,7 @@ exp:		NUM											{;}
 		| ID											{;}
 		| exp ARITMETICO exp 							{;}
 		| exp RELACIONAL exp 							{;}
-		| exp '&&' exp 									{;}
+		| exp AND exp 									{;}
 		| exp '[' exp ']' 								{;}
 		| '!' exp  										{;}
 		| '(' exp ')'									{;}
