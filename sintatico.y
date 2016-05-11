@@ -3,20 +3,19 @@
 %{
 #include <stdio.h> 
 %}
+
+%union {
+	char *cadeia;
+}
+
 %token NUM
-%token ID
-%token BLOCO
+%token <cadeia>ID
 %token RELACIONAL
-%left RELACIONAL /*shift/reduce solver*/
+%left RELACIONAL /*shift_reduce solver*/
 %token ATRIBUICAO
-%token PRE_
 %token ARITMETICO
-%left ARITMETICO /*shift/reduce solver*/
+%left ARITMETICO /*shift_reduce solver*/
 %token WHILE
-%token FECHABLOCO
-%token ABREBLOCO
-%token FECHAPAR
-%token ABREPAR
 %token INT
 %token BOOLEAN
 %token ELSE
@@ -25,7 +24,6 @@
 %token AND
 %%
 /* Regras definindo a GLC e acoes correspondentes */
-/* neste nosso exemplo quase todas as acoes estao vazias */
 /*input:    /* empty */
 /*        | input line
 ;
@@ -37,22 +35,22 @@ programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 
 var_declaration: var 									{;}
 				| var ',' var_declaration 				{;}
 ;
-var: type ID 
+var: type ID 											{printf("%s\n",$2);}
 ;
-type:	INT '['  ']';
-		| BOOLEAN
-		| INT
+type:	INT '['  ']'									{;}
+		| BOOLEAN										{;}
+		| INT 											{;}
 ;
 lista_cmds:	cmd											{;}
 			| cmd ';' lista_cmds 						{;}
 ;
-cmd:		ID ATRIBUICAO exp									{;}
-			| ID '[' exp ']'	ATRIBUICAO exp					{;}
-			| IF '(' exp ')' '{' lista_cmds '}'  ELSE lista_cmds{;}
-			| WHILE '(' exp ')' '{' lista_cmds '}'      		{;}
+cmd:		ID ATRIBUICAO exp										{printf("%s\n",$1);}
+			| ID '[' exp ']'	ATRIBUICAO exp						{printf("%s\n",$1);}
+			| IF '(' exp ')' '{' lista_cmds '}'  ELSE lista_cmds	{;}
+			| WHILE '(' exp ')' '{' lista_cmds '}'      			{;}
 ;
-exp:		NUM											{;}
-		| ID											{;}
+exp:		NUM											{}
+		| ID											{printf("%s\n",$1);}
 		| exp ARITMETICO exp 							{;}
 		| exp RELACIONAL exp 							{;}
 		| exp AND exp 									{;}
