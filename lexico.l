@@ -17,6 +17,9 @@ _?[a-zA-Z][a-zA-Z]*				{yylval.cadeia= (char *) strdup(yytext); return ID;}
 "="								{return ATRIBUICAO;}
 ("<"|">")						{return RELACIONAL;}
 ("+"|"/"|"-"|"*")				{return ARITMETICO;}
+"["								{return ABRE_COLCHETE;}
+"]"								{return FECHA_COLCHETE;}
+"!"								{return NOT;}
 [ \n\t]+						{;}
 .								{return yytext[0];}
 %%

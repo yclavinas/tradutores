@@ -8,20 +8,27 @@
 	char *cadeia;
 }
 
-%token AND
-%token ARITMETICO
-%left ARITMETICO /*shift_reduce solver*/
-%token ATRIBUICAO
-%token BOOLEAN
-%token CLASS
-%token ELSE
-%token <cadeia>ID
-%token IF
-%token INT
 %token NUM
+%token <cadeia>ID
 %token RELACIONAL
 %left RELACIONAL /*shift_reduce solver*/
+%token ATRIBUICAO
+%token ARITMETICO
+%left ARITMETICO /*shift_reduce solver*/
 %token WHILE
+%token INT
+%token BOOLEAN
+%token ELSE
+%token IF
+%token CLASS
+%token AND
+%left AND /*shift_reduce solver*/
+%token  ABRE_COLCHETE
+%left  ABRE_COLCHETE
+%token  FECHA_COLCHETE
+%left  FECHA_COLCHETE
+%token  NOT
+%left  NOT
 %%
 /* Regras definindo a GLC e acoes correspondentes */
 /*input:    /* empty */
@@ -34,6 +41,7 @@ programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 
 ;
 var_declaration: var 									{;}
 				| var ',' var_declaration 				{;}
+				|										{;}
 ;
 var: type ID 											{printf("%s\n",$2);}
 ;
@@ -41,21 +49,23 @@ type:	INT '['  ']'									{;}
 		| BOOLEAN										{;}
 		| INT 											{;}
 ;
-lista_cmds:	cmd											{;}
+lista_cmds:	cmd											{;} /*Aqui tem conflito*/
 			| cmd ';' lista_cmds 						{;}
+			| cmd_if lista_cmds							{;}
+; 
+cmd:		ID ATRIBUICAO exp												{printf("%s\n",$1);}
+			| ID '[' exp ']'	ATRIBUICAO exp								{printf("%s\n",$1);}
+			| WHILE '(' exp ')' '{' lista_cmds '}'      					{;}
 ;
-cmd:		ID ATRIBUICAO exp										{printf("%s\n",$1);}
-			| ID '[' exp ']'	ATRIBUICAO exp						{printf("%s\n",$1);}
-			| IF '(' exp ')' '{' lista_cmds '}'  ELSE lista_cmds	{;}
-			| WHILE '(' exp ')' '{' lista_cmds '}'      			{;}
+cmd_if:		 IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}'	{;}
 ;
 exp:		NUM											{}
 		| ID											{printf("%s\n",$1);}
 		| exp ARITMETICO exp 							{;}
 		| exp RELACIONAL exp 							{;}
 		| exp AND exp 									{;}
-		| exp '[' exp ']' 								{;}
-		| '!' exp  										{;}
+		| exp  ABRE_COLCHETE exp  FECHA_COLCHETE 		{;}
+		| NOT exp  										{;}
 		| '(' exp ')'									{;}
 		| 'true' 										{;}
 		| 'false'  										{;}
