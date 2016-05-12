@@ -1,6 +1,6 @@
 /* Analisador Lexico */
 %{
-    # include "sintatico_tab.h"
+    # include "sintaticoColetivo.tab.h"
 %}
 %%
 while {return WHILE;}
