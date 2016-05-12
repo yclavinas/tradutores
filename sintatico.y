@@ -8,20 +8,20 @@
 	char *cadeia;
 }
 
-%token NUM
-%token <cadeia>ID
-%token RELACIONAL
-%left RELACIONAL /*shift_reduce solver*/
-%token ATRIBUICAO
+%token AND
 %token ARITMETICO
 %left ARITMETICO /*shift_reduce solver*/
-%token WHILE
-%token INT
+%token ATRIBUICAO
 %token BOOLEAN
-%token ELSE
-%token IF
 %token CLASS
-%token AND
+%token ELSE
+%token <cadeia>ID
+%token IF
+%token INT
+%token NUM
+%token RELACIONAL
+%left RELACIONAL /*shift_reduce solver*/
+%token WHILE
 %%
 /* Regras definindo a GLC e acoes correspondentes */
 /*input:    /* empty */
