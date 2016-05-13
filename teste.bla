@@ -1,19 +1,19 @@
 int main(){
-int b, boolean c
+	int a, boolean d
 
-_a = 2
-b = _a + 1
-if (a<1+ 1){
-	_a=!_b 
- 	_a=1/1 
-	_b= !(aa && bb)
-	_b=( 2.15 ) - 1000
-	} 
-else{
-	_b = 2 - 15 		
-}
-while(_a<1+ 1){
- 	_a=1<1 
-	_b=2.15 
-	} 
+	a = 2
+	b = a + 1
+	if (a<1+ 1){
+		a=!c 
+	 	a=1/1 
+		c= !(aa && bb)
+		c=( 2.15 ) - 1000
+	}
+	else{
+		_c = 2 - 15
+	}
+	while(a<1+ 1){
+	 	a=1<1 
+		_c=2.15
+	}
 }

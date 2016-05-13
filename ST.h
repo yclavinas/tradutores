@@ -1,6 +1,7 @@
 struct symrec {
 	char *name; 			/* name of symbol */
-	struct symrec *next; 	/* link field */
+	int used;				/* flag of use */
+	struct symrec *next;	/* link field */
 };
 
 typedef struct symrec symrec;
@@ -22,8 +23,8 @@ symrec *putsym  ( char *sym_name ) {
 symrec *getsym ( char *sym_name ) {
 	symrec *ptr;
 	for (ptr = sym_table; ptr != (symrec *) 0; ptr = (symrec *)ptr->next)
-	if (strcmp (ptr->name,sym_name) == 0)
-		return ptr;
+		if (strcmp (ptr->name,sym_name) == 0)
+			return ptr;
 	return 0;
 }
 
