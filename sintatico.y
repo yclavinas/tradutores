@@ -39,36 +39,37 @@ line:     '\n'
 ;*/
 programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 	{ printf ("Programa sintaticamente correto!\n"); }
 ;
-var_declaration: var 									{;}
-				| var ',' var_declaration 				{;}
-				|										{;}
+var_declaration: var 									{printf("var\n");}
+				| var ',' var_declaration 				{printf("var, var_declaration\n");}
+				|										{printf("empty rule\n");}
 ;
 var: type ID 											{printf("%s\n",$2);}
 ;
-type:	INT '['  ']'									{;}
-		| BOOLEAN										{;}
-		| INT 											{;}
+type:	INT '['  ']'									{printf("int []\n");}
+		| BOOLEAN										{printf("bool\n");}
+		| INT 											{printf("int\n");}
 ;
-lista_cmds:	cmd											{;} /*Aqui tem conflito*/
-			| cmd ';' lista_cmds 						{;}
-			| cmd_if lista_cmds							{;}
+lista_cmds:	cmd											{printf("cmd\n");}
+			| cmd lista_cmds 						{printf("cmd ; lista_cmds\n");}
+			
 ; 
-cmd:		ID ATRIBUICAO exp												{printf("%s\n",$1);}
-			| ID '[' exp ']'	ATRIBUICAO exp								{printf("%s\n",$1);}
-			| WHILE '(' exp ')' '{' lista_cmds '}'      					{;}
+cmd:		ID ATRIBUICAO exp														{printf("%s\n",$1);}
+			| ID '[' exp ']'	ATRIBUICAO exp										{printf("%s\n",$1);}
+			| WHILE '(' exp ')' '{' lista_cmds '}' 									{printf("while\n");}
+			| IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 			{printf("entrou no if\n");}
 ;
-cmd_if:		 IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}'	{;}
+
 ;
-exp:		NUM											{}
+exp:		NUM											{printf("NUM\n");}
 		| ID											{printf("%s\n",$1);}
-		| exp ARITMETICO exp 							{;}
-		| exp RELACIONAL exp 							{;}
-		| exp AND exp 									{;}
-		| exp  ABRE_COLCHETE exp  FECHA_COLCHETE 		{;}
-		| NOT exp  										{;}
-		| '(' exp ')'									{;}
-		| 'true' 										{;}
-		| 'false'  										{;}
+		| exp ARITMETICO exp 							{printf("ARITMETICO\n");}
+		| exp RELACIONAL exp 							{printf("RELACIONAL\n");}
+		| exp AND exp 									{printf("AND\n");}
+		| exp  ABRE_COLCHETE exp  FECHA_COLCHETE 		{printf("ABRE_COLCHETE exp FECHA_COLCHETE\n");}
+		| NOT exp  										{printf("NOT\n");}
+		| '(' exp ')'									{printf("(exp)\n");}
+		| 'true' 										{printf("true\n");}
+		| 'false'  										{printf("false\n");}
 ;
 
 %%
