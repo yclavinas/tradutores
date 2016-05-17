@@ -7,6 +7,7 @@
 #include "ST.h"
 
 #define YYDEBUG 1
+#define IMPRIMIR_TABELA_SIMBOLOS 1
 
 int errors = 0;
 
@@ -162,6 +163,20 @@ int main (int argc, char *argv[])
 	}
 	printf("Total of errors: %d\n", errors);
 
+
+	if (IMPRIMIR_TABELA_SIMBOLOS) {
+		/* Percorre a tabela de símbolos, caso setado*/
+		printf("\n******************");
+		printf("\nTABELA DE SIMBOLOS\n");
+		printf("******************");
+		printf("\nID\tUsado");
+		printf("\n--------------\n");
+		ptr = sym_table;
+		while (ptr != NULL) {
+			printf("%s\t%s\n", ptr->name, ptr->used!=0? "sim" : "nao");
+			ptr = ptr->next;
+		}
+	}
 
 	fclose(yyin);
 	fclose(yyout);
