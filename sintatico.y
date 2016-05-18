@@ -108,7 +108,7 @@ lista_cmds:	cmd															{;}
 ; 
 
 cmd:	ID ATRIBUICAO exp												{if(context_check($1)) {mark_used($1);}}
-		| ID '[' exp ']'	ATRIBUICAO exp								{if(context_check($1)) {mark_used($1);}}
+		| ID '[' exp ']' 	ATRIBUICAO exp								{if(context_check($1)) {mark_used($1);}}
 		| IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
 		| WHILE '(' exp ')' '{' lista_cmds '}' 							{;}
 ;

@@ -1,0 +1,10 @@
+int main () {
+	int a, int b, int c, int x
+	
+	a = b
+	b = c
+	c = a
+	d = a
+	
+	
+}
