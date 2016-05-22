@@ -2,6 +2,9 @@
 #include <stdio.h> 
 #include <string.h>
 #include "sintatico.tab.h"
+
+/*"int"							{yylval.cadeia= (char *) strdup(yytext); return INT;}*/
+/*"boolean"						{yylval.cadeia= (char *) strdup(yytext); return BOOLEAN;} */
 %}
 
 %%

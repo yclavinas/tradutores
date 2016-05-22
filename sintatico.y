@@ -15,8 +15,7 @@ install ( char *sym_name ) {
 	symrec *s;
 	s = getsym (sym_name);
 	if (s == 0) {
-		s = putsym (sym_name);
-		s->used = 0;
+		s = putsym (sym_name); /* colocar parametro de install: char *type_name, adicionar à chamada de putsym */
 	}
 	else {
 		printf( "ERROR: '%s' is already defined.\n", sym_name );
@@ -24,7 +23,7 @@ install ( char *sym_name ) {
 	}
 }
 
-int context_check ( char *sym_name ) {
+int contextCheck ( char *sym_name ) {
 	if ( getsym( sym_name ) == 0 ) {
 		printf( "ERROR: '%s' is an undeclared identifier.\n", sym_name );
 		errors++;
@@ -33,13 +32,13 @@ int context_check ( char *sym_name ) {
 	return 1;
 }
 
-mark_used (char *sym_name) {
+void markUsed (char *sym_name) {
 	symrec *s;
 	s = getsym (sym_name);
 	s->used = 1;
 }
 
-int is_used (char * sym_name) {
+int isUsed (char * sym_name) {
 	symrec *ptr;
 	for (ptr = sym_table; ptr != (symrec *) 0; ptr = (symrec *)ptr->next) {
 		if (strcmp (ptr->name,sym_name) == 0){
@@ -64,14 +63,14 @@ int is_used (char * sym_name) {
 %token ARITMETICO
 %left ARITMETICO 	/*shift_reduce solver*/
 %token ATRIBUICAO
-%token BOOLEAN
+%token BOOLEAN /*token <cadeia>BOOLEAN. Para pegar nome do tipo.*/
 %token CLASS
 %token ELSE
 %token FECHA_COLCHETE
 %left FECHA_COLCHETE
 %token <cadeia>ID
 %token IF
-%token INT
+%token INT /*token <cadeia>INT. Para pegar nome do tipo.*/
 %token NUM
 %token NOT
 %left NOT
@@ -94,9 +93,21 @@ var_declaration: 	var 												{;}
 					|													{;}
 ;
 
-var: type ID 															{install($2);}
+var: type ID 															{install($2);} /* {install($1, $2);} */
 ;
 
+/*
+type:	BOOLEAN															{$$=$1;}
+		| INT 															{$$=$1;}
+		| INT '['  ']'													{$$=$1;}
+;
+
+Ele reclama que 'var' e 'type' não tem tipos declarados.
+sintatico1.y:96.138-139: $1 of `var' has no declared type
+sintatico1.y:99.130-131: $$ of `type' has no declared type
+sintatico1.y:100.138-139: $$ of `type' has no declared type
+sintatico1.y:101.130-131: $$ of `type' has no declared type
+*/
 type:	BOOLEAN															{;}
 		| INT 															{;}
 		| INT '['  ']'													{;}
@@ -107,8 +118,8 @@ lista_cmds:	cmd															{;}
 			
 ; 
 
-cmd:	ID ATRIBUICAO exp												{if(context_check($1)) {mark_used($1);}}
-		| ID '[' exp ']' 	ATRIBUICAO exp								{if(context_check($1)) {mark_used($1);}}
+cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}}
+		| ID '[' exp ']' 	ATRIBUICAO exp								{if(contextCheck($1)) {markUsed($1);}}
 		| IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
 		| WHILE '(' exp ')' '{' lista_cmds '}' 							{;}
 ;
@@ -118,7 +129,7 @@ exp:	exp ARITMETICO exp 												{;}
 		| exp RELACIONAL exp 											{;}
 		| exp AND exp 													{;}
 		| exp  ABRE_COLCHETE exp FECHA_COLCHETE 						{;}
-		| ID															{if(context_check($1)) {mark_used($1);}}
+		| ID															{if(contextCheck($1)) {markUsed($1);}}
 		| NOT exp  														{;}
 		| NUM															{;}
 		| '(' exp ')'													{;}
@@ -151,7 +162,7 @@ int main (int argc, char *argv[])
 	symrec *ptr;
 	ptr = sym_table;
 	while (ptr != NULL) {
-		if (!is_used(ptr->name)) {
+		if (!isUsed(ptr->name)) {
 			printf("WARNING: '%s' declared but not used.\n", ptr->name);
 		}
 		ptr = ptr->next;
