@@ -80,7 +80,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 103 "sintatico.y"
+#line 106 "sintatico.y"
 {
 	char *cadeia;
 	int inteiro;

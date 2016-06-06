@@ -119,6 +119,7 @@
 extern FILE *yyin;
 extern FILE *yyout;
 int errors = 0;
+int endMemData = 0;
 /* pc = program counter  */
 #define  pc 7
 
@@ -138,6 +139,7 @@ int errors = 0;
 
 /* 2nd accumulator */
 #define  ac1 1
+//end global
 
 
 //stepTM
@@ -170,7 +172,8 @@ void install ( char *sym_name ) {
 	symrec *s;
 	s = getsym (sym_name);
 	if (s == 0) {
-		s = putsym (sym_name); /* colocar parametro de install: char *type_name, adicionar à chamada de putsym */
+		s = putsym (sym_name, endMemData); /* colocar parametro de install: char *type_name, adicionar à chamada de putsym */
+		endMemData++;
 	}
 	else {
 		printf( "ERROR: '%s' is already defined.\n", sym_name );
@@ -227,13 +230,13 @@ int isUsed (char * sym_name) {
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 103 "sintatico.y"
+#line 106 "sintatico.y"
 {
 	char *cadeia;
 	int inteiro;
 }
 /* Line 193 of yacc.c.  */
-#line 237 "sintatico.tab.c"
+#line 240 "sintatico.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -246,7 +249,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 250 "sintatico.tab.c"
+#line 253 "sintatico.tab.c"
 
 #ifdef short
 # undef short
@@ -541,9 +544,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   138,   138,   141,   142,   143,   146,   161,   162,   163,
-     166,   167,   171,   172,   173,   174,   175,   179,   180,   181,
-     182,   183,   184,   185,   186,   187,   188
+       0,   141,   141,   144,   145,   146,   149,   164,   165,   166,
+     169,   170,   174,   175,   176,   177,   178,   182,   183,   184,
+     185,   186,   187,   188,   189,   190,   191
 };
 #endif
 
@@ -1488,133 +1491,133 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 138 "sintatico.y"
+#line 141 "sintatico.y"
     { printf ("Programa sintaticamente correto!\n\n"); ;}
     break;
 
   case 3:
-#line 141 "sintatico.y"
+#line 144 "sintatico.y"
     {;;}
     break;
 
   case 4:
-#line 142 "sintatico.y"
+#line 145 "sintatico.y"
     {;;}
     break;
 
   case 5:
-#line 143 "sintatico.y"
+#line 146 "sintatico.y"
     {;;}
     break;
 
   case 6:
-#line 146 "sintatico.y"
+#line 149 "sintatico.y"
     {install((yyvsp[(2) - (2)].cadeia));;}
     break;
 
   case 7:
-#line 161 "sintatico.y"
+#line 164 "sintatico.y"
     {;;}
     break;
 
   case 8:
-#line 162 "sintatico.y"
+#line 165 "sintatico.y"
     {;;}
     break;
 
   case 9:
-#line 163 "sintatico.y"
-    {;;}
-    break;
-
-  case 10:
 #line 166 "sintatico.y"
     {;;}
     break;
 
+  case 10:
+#line 169 "sintatico.y"
+    {;;}
+    break;
+
   case 11:
-#line 167 "sintatico.y"
+#line 170 "sintatico.y"
     {;;}
     break;
 
   case 12:
-#line 171 "sintatico.y"
+#line 174 "sintatico.y"
     {if(contextCheck((yyvsp[(1) - (3)].cadeia))) {markUsed((yyvsp[(1) - (3)].cadeia));};}
     break;
 
   case 13:
-#line 172 "sintatico.y"
+#line 175 "sintatico.y"
     {if(contextCheck((yyvsp[(1) - (6)].cadeia))) {markUsed((yyvsp[(1) - (6)].cadeia));};}
     break;
 
   case 14:
-#line 173 "sintatico.y"
+#line 176 "sintatico.y"
     {;;}
     break;
 
   case 15:
-#line 174 "sintatico.y"
+#line 177 "sintatico.y"
     {;;}
     break;
 
   case 16:
-#line 175 "sintatico.y"
+#line 178 "sintatico.y"
     {emitRO("OUT",ac,0,0,"write ac");;}
     break;
 
   case 17:
-#line 179 "sintatico.y"
-    {;;}
-    break;
-
-  case 18:
-#line 180 "sintatico.y"
-    {;;}
-    break;
-
-  case 19:
-#line 181 "sintatico.y"
-    {;;}
-    break;
-
-  case 20:
 #line 182 "sintatico.y"
     {;;}
     break;
 
-  case 21:
+  case 18:
 #line 183 "sintatico.y"
-    {if(contextCheck((yyvsp[(1) - (1)].cadeia))) {markUsed((yyvsp[(1) - (1)].cadeia));};}
+    {;;}
     break;
 
-  case 22:
+  case 19:
 #line 184 "sintatico.y"
     {;;}
     break;
 
-  case 23:
+  case 20:
 #line 185 "sintatico.y"
-    {emitRM("LDC",ac,(yyvsp[(1) - (1)].inteiro),0,"load const");;}
-    break;
-
-  case 24:
-#line 186 "sintatico.y"
     {;;}
     break;
 
-  case 25:
+  case 21:
+#line 186 "sintatico.y"
+    {if(contextCheck((yyvsp[(1) - (1)].cadeia))) {markUsed((yyvsp[(1) - (1)].cadeia));};}
+    break;
+
+  case 22:
 #line 187 "sintatico.y"
     {;;}
     break;
 
-  case 26:
+  case 23:
 #line 188 "sintatico.y"
+    {emitRM("LDC",ac,(yyvsp[(1) - (1)].inteiro),0,"load const");;}
+    break;
+
+  case 24:
+#line 189 "sintatico.y"
+    {;;}
+    break;
+
+  case 25:
+#line 190 "sintatico.y"
+    {;;}
+    break;
+
+  case 26:
+#line 191 "sintatico.y"
     {;;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1618 "sintatico.tab.c"
+#line 1621 "sintatico.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1828,7 +1831,7 @@ yyreturn:
 }
 
 
-#line 193 "sintatico.y"
+#line 196 "sintatico.y"
 
 int main (int argc, char *argv[]) 
 {
@@ -1878,11 +1881,11 @@ int main (int argc, char *argv[])
 		printf("\n******************");
 		printf("\nTABELA DE SIMBOLOS\n");
 		printf("******************");
-		printf("\nID\tUsado");
-		printf("\n--------------\n");
+		printf("\nID\tUsado\tADRESS");
+		printf("\n-------------------\n");
 		ptr = sym_table;
 		while (ptr != NULL) {
-			printf("%s\t%s\n", ptr->name, ptr->used!=0? "sim" : "nao");
+			printf("%s\t%s\t%d\n", ptr->name, ptr->used!=0? "sim" : "nao", ptr->address);
 			ptr = ptr->next;
 		}
 	}

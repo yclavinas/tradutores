@@ -12,6 +12,7 @@
 extern FILE *yyin;
 extern FILE *yyout;
 int errors = 0;
+int endMemData = 0;
 /* pc = program counter  */
 #define  pc 7
 
@@ -31,6 +32,7 @@ int errors = 0;
 
 /* 2nd accumulator */
 #define  ac1 1
+//end global
 
 
 //stepTM
@@ -63,7 +65,8 @@ void install ( char *sym_name ) {
 	symrec *s;
 	s = getsym (sym_name);
 	if (s == 0) {
-		s = putsym (sym_name); /* colocar parametro de install: char *type_name, adicionar à chamada de putsym */
+		s = putsym (sym_name, endMemData); /* colocar parametro de install: char *type_name, adicionar à chamada de putsym */
+		endMemData++;
 	}
 	else {
 		printf( "ERROR: '%s' is already defined.\n", sym_name );
@@ -239,11 +242,11 @@ int main (int argc, char *argv[])
 		printf("\n******************");
 		printf("\nTABELA DE SIMBOLOS\n");
 		printf("******************");
-		printf("\nID\tUsado");
-		printf("\n--------------\n");
+		printf("\nID\tUsado\tADDRESS");
+		printf("\n-------------------\n");
 		ptr = sym_table;
 		while (ptr != NULL) {
-			printf("%s\t%s\n", ptr->name, ptr->used!=0? "sim" : "nao");
+			printf("%s\t%s\t%d\n", ptr->name, ptr->used!=0? "sim" : "nao", ptr->address);
 			ptr = ptr->next;
 		}
 	}
