@@ -8,8 +8,56 @@
 
 #define YYDEBUG 1
 #define IMPRIMIR_TABELA_SIMBOLOS 1
-
+//global var
+extern FILE *yyin;
+extern FILE *yyout;
 int errors = 0;
+/* pc = program counter  */
+#define  pc 7
+
+/* mp = "memory pointer" points
+ * to top of memory (for temp storage)
+ */
+#define  mp 6
+
+/* gp = "global pointer" points
+ * to bottom of memory for (global)
+ * variable storage
+ */
+#define gp 5
+
+/* accumulator */
+#define  ac 0
+
+/* 2nd accumulator */
+#define  ac1 1
+
+
+//stepTM
+//code from louden
+void emitRO( char *op, int r, int s, int t, char *c)
+{ fprintf(yyout,":  %5s  %d,%d,%d \n",op,r,s,t);
+  // if (TraceCode) fprintf(code,"\t%s",c) ;
+  // fprintf(code,"\n") ;
+  // if (highEmitLoc < emitLoc) highEmitLoc = emitLoc ;
+} /* emitRO */
+
+/* Procedure emitRM emits a register-to-memory
+ * TM instruction
+ * op = the opcode
+ * r = target register
+ * d = the offset
+ * s = the base register
+ * c = a comment to be printed if TraceCode is TRUE
+ */
+void emitRM( char * op, int r, int d, int s, char *c)
+{ 
+	printf("%d\n", d);
+	fprintf(yyout,":  %5s  %d,%d(%d) \n",op,r,d,s);
+  // if (TraceCode) fprintf(code,"\t%s",c) ;
+  // fprintf(code,"\n") ;
+  // if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
+} /* emitRM */
 
 void install ( char *sym_name ) {
 	symrec *s;
@@ -54,6 +102,7 @@ int isUsed (char * sym_name) {
 
 %union {
 	char *cadeia;
+	int inteiro;
 }
 
 %token ABRE_COLCHETE
@@ -71,12 +120,13 @@ int isUsed (char * sym_name) {
 %token <cadeia>ID
 %token IF
 %token INT /*token <cadeia>INT. Para pegar nome do tipo.*/
-%token NUM
+%token <inteiro>NUM
 %token NOT
 %left NOT
 %token RELACIONAL
 %left RELACIONAL 	/*shift_reduce solver*/
 %token WHILE
+%token ESCREVA //code from wiki
 %%
 /* Regras definindo a GLC e acoes correspondentes */
 /*input:    /* empty */
@@ -122,6 +172,7 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}}
 		| ID '[' exp ']' 	ATRIBUICAO exp								{if(contextCheck($1)) {markUsed($1);}}
 		| IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
 		| WHILE '(' exp ')' '{' lista_cmds '}' 							{;}
+		| ESCREVA '(' exp ')'			 								{emitRO("OUT",ac,0,0,"write ac");}//code from wiki
 ;
 
 ;
@@ -131,17 +182,17 @@ exp:	exp ARITMETICO exp 												{;}
 		| exp  ABRE_COLCHETE exp FECHA_COLCHETE 						{;}
 		| ID															{if(contextCheck($1)) {markUsed($1);}}
 		| NOT exp  														{;}
-		| NUM															{;}
-		| '(' exp ')'													{;}
+		| NUM															{emitRM("LDC",ac,$1,0,"load const");}//code from wiki
+		| '(' exp ')' 													{;}
 		| 'true' 														{;}
 		| 'false'  														{;}
 ;
+//code from wiki
+
 
 %%
 int main (int argc, char *argv[]) 
 {
-	extern FILE *yyin;
-	extern FILE *yyout;
 
 	/* abre arquivo de entrada se houver */
 	++argv; --argc;
@@ -156,7 +207,15 @@ int main (int argc, char *argv[])
 	else
 		yyout = stdout;
 
+	//code from wiki
+	//emitComment("Standard prelude:");
+	emitRM("LD",mp,0,ac,"load maxaddress from location 0");
+	emitRM("ST",ac,0,ac,"clear location 0");
+	//emitComment("End of standard prelude.");
 	yyparse ();
+	//emitComment("End of execution.");
+	emitRO("HALT",0,0,0,"");
+	//code from wiki
 
 	/* Percorre a tabela de símbolos para achar ids declarados mas não utilizados */
 	symrec *ptr;

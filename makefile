@@ -12,5 +12,8 @@ rm:
 deb:
 	bison -v sintatico.y
 
-run:
-	./a.out teste.bla teste
+runteste:
+	./a.out teste.bla teste.txt
+
+runexe1:
+	./a.out exe1.mlp teste.txt

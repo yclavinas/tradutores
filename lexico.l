@@ -8,6 +8,7 @@
 %}
 
 %%
+escreva							{return ESCREVA;}//code from wiki
 "&&"							{return AND;}
 main 							{return CLASS;}
 int								{return INT;}
@@ -15,7 +16,7 @@ boolean							{return BOOLEAN;}
 if 								{return IF;}
 else							{return ELSE;}
 while 							{return WHILE;}
-("+"|"-")?[0-9]+(".")?[0-9]*	{return NUM;}
+("+"|"-")?[0-9]+(".")?[0-9]*	{yylval.inteiro=  atoi(yytext); return NUM;}
 _?[a-zA-Z][a-zA-Z]*				{yylval.cadeia= (char *) strdup(yytext); return ID;}
 "="								{return ATRIBUICAO;}
 ("<"|">")						{return RELACIONAL;}

@@ -53,7 +53,8 @@
      NUM = 269,
      NOT = 270,
      RELACIONAL = 271,
-     WHILE = 272
+     WHILE = 272,
+     ESCREVA = 273
    };
 #endif
 /* Tokens.  */
@@ -72,18 +73,20 @@
 #define NOT 270
 #define RELACIONAL 271
 #define WHILE 272
+#define ESCREVA 273
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 55 "sintatico.y"
+#line 103 "sintatico.y"
 {
 	char *cadeia;
+	int inteiro;
 }
 /* Line 1529 of yacc.c.  */
-#line 87 "sintatico.tab.h"
+#line 90 "sintatico.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
