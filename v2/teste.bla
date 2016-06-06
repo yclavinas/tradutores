@@ -1,5 +1,5 @@
-int main(){
-	int a, boolean d
+INTEIRO main(){
+	INTEIRO a, INTEIRO d
 
 	a = 2
 	b = a + 1

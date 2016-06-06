@@ -8,7 +8,7 @@
 %%
 "&&"							{return AND;}
 main 							{return CLASS;}
-("int"|"boolean")				{yylval.cadeia= (char *) strdup(yytext); return TIPO;}
+(INTEIRO|boolean)				{yylval.cadeia= (char *) strdup(yytext); return TIPO;}
 if 								{return IF;}
 else							{return ELSE;}
 while 							{return WHILE;}

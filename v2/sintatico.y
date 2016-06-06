@@ -11,7 +11,7 @@
 
 int errors = 0;
 
-install (char *type_name,  char *sym_name) {
+void install (char *type_name,  char *sym_name) {
 	symrec *s;
 	s = getsym (sym_name);
 	if (s == 0) {

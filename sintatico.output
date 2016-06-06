@@ -1,0 +1,786 @@
+State 16 conflicts: 1 shift/reduce
+State 17 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: programa $end
+
+    1 programa: type CLASS '(' type var_declaration ')' '{' var_declaration lista_cmds '}'
+
+    2 var_declaration: var
+    3                | var ',' type var_declaration
+    4                | /* empty */
+
+    5 var: ID
+
+    6 type: BOOLEAN
+    7     | INT
+    8     | INT '[' ']'
+
+    9 lista_cmds: cmd
+   10           | cmd lista_cmds
+
+   11 cmd: ID ATRIBUICAO exp
+   12    | ID '[' exp ']' ATRIBUICAO exp
+   13    | IF '(' exp ')' '{' lista_cmds '}' ELSE '{' lista_cmds '}'
+   14    | WHILE '(' exp ')' '{' lista_cmds '}'
+
+   15 exp: exp ARITMETICO exp
+   16    | exp RELACIONAL exp
+   17    | exp AND exp
+   18    | exp ABRE_COLCHETE exp FECHA_COLCHETE
+   19    | ID
+   20    | NOT exp
+   21    | NUM
+   22    | '(' exp ')'
+   23    | 'true'
+   24    | 'false'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'(' (40) 1 13 14 22
+')' (41) 1 13 14 22
+',' (44) 3
+'[' (91) 8 12
+']' (93) 8 12
+'false' (102) 24
+'true' (116) 23
+'{' (123) 1 13 14
+'}' (125) 1 13 14
+error (256)
+ABRE_COLCHETE (258) 18
+AND (259) 17
+ARITMETICO (260) 15
+ATRIBUICAO (261) 11 12
+BOOLEAN (262) 6
+CLASS (263) 1
+ELSE (264) 13
+FECHA_COLCHETE (265) 18
+ID (266) 5 11 12 19
+IF (267) 13
+INT (268) 7 8
+NUM (269) 21
+NOT (270) 20
+RELACIONAL (271) 16
+WHILE (272) 14
+
+
+Nonterminals, with rules where they appear
+
+$accept (27)
+    on left: 0
+programa (28)
+    on left: 1, on right: 0
+var_declaration (29)
+    on left: 2 3 4, on right: 1 3
+var (30)
+    on left: 5, on right: 2 3
+type (31)
+    on left: 6 7 8, on right: 1 3
+lista_cmds (32)
+    on left: 9 10, on right: 1 10 13 14
+cmd (33)
+    on left: 11 12 13 14, on right: 9 10
+exp (34)
+    on left: 15 16 17 18 19 20 21 22 23 24, on right: 11 12 13 14 15
+    16 17 18 20 22
+
+
+state 0
+
+    0 $accept: . programa $end
+
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 2
+
+    programa  go to state 3
+    type      go to state 4
+
+
+state 1
+
+    6 type: BOOLEAN .
+
+    $default  reduce using rule 6 (type)
+
+
+state 2
+
+    7 type: INT .
+    8     | INT . '[' ']'
+
+    '['  shift, and go to state 5
+
+    $default  reduce using rule 7 (type)
+
+
+state 3
+
+    0 $accept: programa . $end
+
+    $end  shift, and go to state 6
+
+
+state 4
+
+    1 programa: type . CLASS '(' type var_declaration ')' '{' var_declaration lista_cmds '}'
+
+    CLASS  shift, and go to state 7
+
+
+state 5
+
+    8 type: INT '[' . ']'
+
+    ']'  shift, and go to state 8
+
+
+state 6
+
+    0 $accept: programa $end .
+
+    $default  accept
+
+
+state 7
+
+    1 programa: type CLASS . '(' type var_declaration ')' '{' var_declaration lista_cmds '}'
+
+    '('  shift, and go to state 9
+
+
+state 8
+
+    8 type: INT '[' ']' .
+
+    $default  reduce using rule 8 (type)
+
+
+state 9
+
+    1 programa: type CLASS '(' . type var_declaration ')' '{' var_declaration lista_cmds '}'
+
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 2
+
+    type  go to state 10
+
+
+state 10
+
+    1 programa: type CLASS '(' type . var_declaration ')' '{' var_declaration lista_cmds '}'
+
+    ID  shift, and go to state 11
+
+    $default  reduce using rule 4 (var_declaration)
+
+    var_declaration  go to state 12
+    var              go to state 13
+
+
+state 11
+
+    5 var: ID .
+
+    $default  reduce using rule 5 (var)
+
+
+state 12
+
+    1 programa: type CLASS '(' type var_declaration . ')' '{' var_declaration lista_cmds '}'
+
+    ')'  shift, and go to state 14
+
+
+state 13
+
+    2 var_declaration: var .
+    3                | var . ',' type var_declaration
+
+    ','  shift, and go to state 15
+
+    $default  reduce using rule 2 (var_declaration)
+
+
+state 14
+
+    1 programa: type CLASS '(' type var_declaration ')' . '{' var_declaration lista_cmds '}'
+
+    '{'  shift, and go to state 16
+
+
+state 15
+
+    3 var_declaration: var ',' . type var_declaration
+
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 2
+
+    type  go to state 17
+
+
+state 16
+
+    1 programa: type CLASS '(' type var_declaration ')' '{' . var_declaration lista_cmds '}'
+
+    ID  shift, and go to state 11
+
+    ID        [reduce using rule 4 (var_declaration)]
+    $default  reduce using rule 4 (var_declaration)
+
+    var_declaration  go to state 18
+    var              go to state 13
+
+
+state 17
+
+    3 var_declaration: var ',' type . var_declaration
+
+    ID  shift, and go to state 11
+
+    ID        [reduce using rule 4 (var_declaration)]
+    $default  reduce using rule 4 (var_declaration)
+
+    var_declaration  go to state 19
+    var              go to state 13
+
+
+state 18
+
+    1 programa: type CLASS '(' type var_declaration ')' '{' var_declaration . lista_cmds '}'
+
+    ID     shift, and go to state 20
+    IF     shift, and go to state 21
+    WHILE  shift, and go to state 22
+
+    lista_cmds  go to state 23
+    cmd         go to state 24
+
+
+state 19
+
+    3 var_declaration: var ',' type var_declaration .
+
+    $default  reduce using rule 3 (var_declaration)
+
+
+state 20
+
+   11 cmd: ID . ATRIBUICAO exp
+   12    | ID . '[' exp ']' ATRIBUICAO exp
+
+    ATRIBUICAO  shift, and go to state 25
+    '['         shift, and go to state 26
+
+
+state 21
+
+   13 cmd: IF . '(' exp ')' '{' lista_cmds '}' ELSE '{' lista_cmds '}'
+
+    '('  shift, and go to state 27
+
+
+state 22
+
+   14 cmd: WHILE . '(' exp ')' '{' lista_cmds '}'
+
+    '('  shift, and go to state 28
+
+
+state 23
+
+    1 programa: type CLASS '(' type var_declaration ')' '{' var_declaration lista_cmds . '}'
+
+    '}'  shift, and go to state 29
+
+
+state 24
+
+    9 lista_cmds: cmd .
+   10           | cmd . lista_cmds
+
+    ID     shift, and go to state 20
+    IF     shift, and go to state 21
+    WHILE  shift, and go to state 22
+
+    $default  reduce using rule 9 (lista_cmds)
+
+    lista_cmds  go to state 30
+    cmd         go to state 24
+
+
+state 25
+
+   11 cmd: ID ATRIBUICAO . exp
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 37
+
+
+state 26
+
+   12 cmd: ID '[' . exp ']' ATRIBUICAO exp
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 38
+
+
+state 27
+
+   13 cmd: IF '(' . exp ')' '{' lista_cmds '}' ELSE '{' lista_cmds '}'
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 39
+
+
+state 28
+
+   14 cmd: WHILE '(' . exp ')' '{' lista_cmds '}'
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 40
+
+
+state 29
+
+    1 programa: type CLASS '(' type var_declaration ')' '{' var_declaration lista_cmds '}' .
+
+    $default  reduce using rule 1 (programa)
+
+
+state 30
+
+   10 lista_cmds: cmd lista_cmds .
+
+    $default  reduce using rule 10 (lista_cmds)
+
+
+state 31
+
+   19 exp: ID .
+
+    $default  reduce using rule 19 (exp)
+
+
+state 32
+
+   21 exp: NUM .
+
+    $default  reduce using rule 21 (exp)
+
+
+state 33
+
+   20 exp: NOT . exp
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 41
+
+
+state 34
+
+   22 exp: '(' . exp ')'
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 42
+
+
+state 35
+
+   23 exp: 'true' .
+
+    $default  reduce using rule 23 (exp)
+
+
+state 36
+
+   24 exp: 'false' .
+
+    $default  reduce using rule 24 (exp)
+
+
+state 37
+
+   11 cmd: ID ATRIBUICAO exp .
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    ABRE_COLCHETE  shift, and go to state 43
+    AND            shift, and go to state 44
+    ARITMETICO     shift, and go to state 45
+    RELACIONAL     shift, and go to state 46
+
+    $default  reduce using rule 11 (cmd)
+
+
+state 38
+
+   12 cmd: ID '[' exp . ']' ATRIBUICAO exp
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    ABRE_COLCHETE  shift, and go to state 43
+    AND            shift, and go to state 44
+    ARITMETICO     shift, and go to state 45
+    RELACIONAL     shift, and go to state 46
+    ']'            shift, and go to state 47
+
+
+state 39
+
+   13 cmd: IF '(' exp . ')' '{' lista_cmds '}' ELSE '{' lista_cmds '}'
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    ABRE_COLCHETE  shift, and go to state 43
+    AND            shift, and go to state 44
+    ARITMETICO     shift, and go to state 45
+    RELACIONAL     shift, and go to state 46
+    ')'            shift, and go to state 48
+
+
+state 40
+
+   14 cmd: WHILE '(' exp . ')' '{' lista_cmds '}'
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    ABRE_COLCHETE  shift, and go to state 43
+    AND            shift, and go to state 44
+    ARITMETICO     shift, and go to state 45
+    RELACIONAL     shift, and go to state 46
+    ')'            shift, and go to state 49
+
+
+state 41
+
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+   20    | NOT exp .
+
+    RELACIONAL  shift, and go to state 46
+
+    $default  reduce using rule 20 (exp)
+
+
+state 42
+
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+   22    | '(' exp . ')'
+
+    ABRE_COLCHETE  shift, and go to state 43
+    AND            shift, and go to state 44
+    ARITMETICO     shift, and go to state 45
+    RELACIONAL     shift, and go to state 46
+    ')'            shift, and go to state 50
+
+
+state 43
+
+   18 exp: exp ABRE_COLCHETE . exp FECHA_COLCHETE
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 51
+
+
+state 44
+
+   17 exp: exp AND . exp
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 52
+
+
+state 45
+
+   15 exp: exp ARITMETICO . exp
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 53
+
+
+state 46
+
+   16 exp: exp RELACIONAL . exp
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 54
+
+
+state 47
+
+   12 cmd: ID '[' exp ']' . ATRIBUICAO exp
+
+    ATRIBUICAO  shift, and go to state 55
+
+
+state 48
+
+   13 cmd: IF '(' exp ')' . '{' lista_cmds '}' ELSE '{' lista_cmds '}'
+
+    '{'  shift, and go to state 56
+
+
+state 49
+
+   14 cmd: WHILE '(' exp ')' . '{' lista_cmds '}'
+
+    '{'  shift, and go to state 57
+
+
+state 50
+
+   22 exp: '(' exp ')' .
+
+    $default  reduce using rule 22 (exp)
+
+
+state 51
+
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+   18    | exp ABRE_COLCHETE exp . FECHA_COLCHETE
+
+    ABRE_COLCHETE   shift, and go to state 43
+    AND             shift, and go to state 44
+    ARITMETICO      shift, and go to state 45
+    FECHA_COLCHETE  shift, and go to state 58
+    RELACIONAL      shift, and go to state 46
+
+
+state 52
+
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   17    | exp AND exp .
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    ARITMETICO  shift, and go to state 45
+    RELACIONAL  shift, and go to state 46
+
+    $default  reduce using rule 17 (exp)
+
+
+state 53
+
+   15 exp: exp . ARITMETICO exp
+   15    | exp ARITMETICO exp .
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    RELACIONAL  shift, and go to state 46
+
+    $default  reduce using rule 15 (exp)
+
+
+state 54
+
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   16    | exp RELACIONAL exp .
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    $default  reduce using rule 16 (exp)
+
+
+state 55
+
+   12 cmd: ID '[' exp ']' ATRIBUICAO . exp
+
+    ID       shift, and go to state 31
+    NUM      shift, and go to state 32
+    NOT      shift, and go to state 33
+    '('      shift, and go to state 34
+    'true'   shift, and go to state 35
+    'false'  shift, and go to state 36
+
+    exp  go to state 59
+
+
+state 56
+
+   13 cmd: IF '(' exp ')' '{' . lista_cmds '}' ELSE '{' lista_cmds '}'
+
+    ID     shift, and go to state 20
+    IF     shift, and go to state 21
+    WHILE  shift, and go to state 22
+
+    lista_cmds  go to state 60
+    cmd         go to state 24
+
+
+state 57
+
+   14 cmd: WHILE '(' exp ')' '{' . lista_cmds '}'
+
+    ID     shift, and go to state 20
+    IF     shift, and go to state 21
+    WHILE  shift, and go to state 22
+
+    lista_cmds  go to state 61
+    cmd         go to state 24
+
+
+state 58
+
+   18 exp: exp ABRE_COLCHETE exp FECHA_COLCHETE .
+
+    $default  reduce using rule 18 (exp)
+
+
+state 59
+
+   12 cmd: ID '[' exp ']' ATRIBUICAO exp .
+   15 exp: exp . ARITMETICO exp
+   16    | exp . RELACIONAL exp
+   17    | exp . AND exp
+   18    | exp . ABRE_COLCHETE exp FECHA_COLCHETE
+
+    ABRE_COLCHETE  shift, and go to state 43
+    AND            shift, and go to state 44
+    ARITMETICO     shift, and go to state 45
+    RELACIONAL     shift, and go to state 46
+
+    $default  reduce using rule 12 (cmd)
+
+
+state 60
+
+   13 cmd: IF '(' exp ')' '{' lista_cmds . '}' ELSE '{' lista_cmds '}'
+
+    '}'  shift, and go to state 62
+
+
+state 61
+
+   14 cmd: WHILE '(' exp ')' '{' lista_cmds . '}'
+
+    '}'  shift, and go to state 63
+
+
+state 62
+
+   13 cmd: IF '(' exp ')' '{' lista_cmds '}' . ELSE '{' lista_cmds '}'
+
+    ELSE  shift, and go to state 64
+
+
+state 63
+
+   14 cmd: WHILE '(' exp ')' '{' lista_cmds '}' .
+
+    $default  reduce using rule 14 (cmd)
+
+
+state 64
+
+   13 cmd: IF '(' exp ')' '{' lista_cmds '}' ELSE . '{' lista_cmds '}'
+
+    '{'  shift, and go to state 65
+
+
+state 65
+
+   13 cmd: IF '(' exp ')' '{' lista_cmds '}' ELSE '{' . lista_cmds '}'
+
+    ID     shift, and go to state 20
+    IF     shift, and go to state 21
+    WHILE  shift, and go to state 22
+
+    lista_cmds  go to state 66
+    cmd         go to state 24
+
+
+state 66
+
+   13 cmd: IF '(' exp ')' '{' lista_cmds '}' ELSE '{' lista_cmds . '}'
+
+    '}'  shift, and go to state 67
+
+
+state 67
+
+   13 cmd: IF '(' exp ')' '{' lista_cmds '}' ELSE '{' lista_cmds '}' .
+
+    $default  reduce using rule 13 (cmd)
