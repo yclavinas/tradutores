@@ -9,6 +9,7 @@
 
 %%
 escreva							{return ESCREVA;}//code from wiki
+leia							{return LEIA;}//code from wiki
 "&&"							{return AND;}
 main 							{return CLASS;}
 int								{return INT;}

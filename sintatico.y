@@ -138,6 +138,7 @@ int getOp(char *a){
 %left RELACIONAL 	/*shift_reduce solver*/
 %token WHILE
 %token ESCREVA
+%token LEIA
 %%
 
 
@@ -169,6 +170,9 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 		| IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
 		| WHILE '(' exp ')' '{' lista_cmds '}' 							{;}
 		| ESCREVA '(' exp ')'			 								{emitRO("OUT",ac,0,0,"write ac");}//code from wiki
+		| LEIA '(' ID ')'			 									{emitRO("IN",ac,0,0,"read integer value");
+         																memVal = getMemVal($3);
+																        emitRM("ST",ac,memVal,gp,"read: store value");}
 ;
 
 ;
