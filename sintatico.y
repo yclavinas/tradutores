@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ST.h"
+// #include "code.h"
 
 #define YYDEBUG 1
 #define IMPRIMIR_TABELA_SIMBOLOS 1
@@ -13,6 +14,9 @@ extern FILE *yyin;
 extern FILE *yyout;
 int errors = 0;
 int endMemData = 0;
+int memVal=0;
+int operador = 0;
+static int tmpOffset = 0;
 /* pc = program counter  */
 #define  pc 7
 
@@ -35,31 +39,14 @@ int endMemData = 0;
 //end global
 
 
-//stepTM
-//code from louden
 void emitRO( char *op, int r, int s, int t, char *c)
 { fprintf(yyout,":  %5s  %d,%d,%d \n",op,r,s,t);
-  // if (TraceCode) fprintf(code,"\t%s",c) ;
-  // fprintf(code,"\n") ;
-  // if (highEmitLoc < emitLoc) highEmitLoc = emitLoc ;
-} /* emitRO */
+} 
 
-/* Procedure emitRM emits a register-to-memory
- * TM instruction
- * op = the opcode
- * r = target register
- * d = the offset
- * s = the base register
- * c = a comment to be printed if TraceCode is TRUE
- */
 void emitRM( char * op, int r, int d, int s, char *c)
 { 
-	printf("%d\n", d);
 	fprintf(yyout,":  %5s  %d,%d(%d) \n",op,r,d,s);
-  // if (TraceCode) fprintf(code,"\t%s",c) ;
-  // fprintf(code,"\n") ;
-  // if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
-} /* emitRM */
+} 
 
 void install ( char *sym_name ) {
 	symrec *s;
@@ -101,6 +88,27 @@ int isUsed (char * sym_name) {
 	return 0;
 }
 
+int getMemVal( char *sym_name ){
+	symrec *s;
+	s = getsym (sym_name);
+	return (s->address);
+}
+
+int getOp(char *a){
+	if (strcmp(a,"+")==0){
+		return (1);
+	}
+	else if (strcmp(a, "-")==0){
+		return (2);
+	}
+	else if (strcmp(a, "/")==0){
+		return (3);
+	}
+	else if (strcmp(a, "*")==0){
+		return (4);
+	}
+}
+
 %}
 
 %union {
@@ -112,7 +120,7 @@ int isUsed (char * sym_name) {
 %left ABRE_COLCHETE
 %token AND
 %left AND 			/*shift_reduce solver*/
-%token ARITMETICO
+%token <cadeia>ARITMETICO
 %left ARITMETICO 	/*shift_reduce solver*/
 %token ATRIBUICAO
 %token BOOLEAN /*token <cadeia>BOOLEAN. Para pegar nome do tipo.*/
@@ -129,15 +137,10 @@ int isUsed (char * sym_name) {
 %token RELACIONAL
 %left RELACIONAL 	/*shift_reduce solver*/
 %token WHILE
-%token ESCREVA //code from wiki
+%token ESCREVA
 %%
-/* Regras definindo a GLC e acoes correspondentes */
-/*input:    /* empty */
-/*        | input line
-;
-line:     '\n'
-        | programa '\n'  
-;*/
+
+
 programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 	{ printf ("Programa sintaticamente correto!\n\n"); }
 ;
 
@@ -149,18 +152,7 @@ var_declaration: 	var 												{;}
 var: type ID 															{install($2);} /* {install($1, $2);} */
 ;
 
-/*
-type:	BOOLEAN															{$$=$1;}
-		| INT 															{$$=$1;}
-		| INT '['  ']'													{$$=$1;}
-;
 
-Ele reclama que 'var' e 'type' não tem tipos declarados.
-sintatico1.y:96.138-139: $1 of `var' has no declared type
-sintatico1.y:99.130-131: $$ of `type' has no declared type
-sintatico1.y:100.138-139: $$ of `type' has no declared type
-sintatico1.y:101.130-131: $$ of `type' has no declared type
-*/
 type:	BOOLEAN															{;}
 		| INT 															{;}
 		| INT '['  ']'													{;}
@@ -170,8 +162,9 @@ lista_cmds:	cmd															{;}
 			| cmd lista_cmds 											{;}
 			
 ; 
-
-cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}}
+cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
+																			{memVal = getMemVal($1);}
+																			{emitRM("ST",ac,memVal,gp,"assign: store value");}}
 		| ID '[' exp ']' 	ATRIBUICAO exp								{if(contextCheck($1)) {markUsed($1);}}
 		| IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
 		| WHILE '(' exp ')' '{' lista_cmds '}' 							{;}
@@ -179,19 +172,30 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}}
 ;
 
 ;
-exp:	exp ARITMETICO exp 												{;}
+exp:	exp 															{emitRM("ST",ac,tmpOffset--,mp,"op: push left");} 
+		ARITMETICO exp 													{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
+																		{operador=getOp($3)}
+																		{if(operador==1)emitRO("ADD",ac,ac1,ac,"op +");
+																		else if (operador==2)emitRO("SUB",ac,ac1,ac,"op -");
+																		else if (operador==3)emitRO("DIV",ac,ac1,ac,"op /");
+																		else if (operador==4)emitRO("MUL",ac,ac1,ac,"op *");}
+		
 		| exp RELACIONAL exp 											{;}
 		| exp AND exp 													{;}
 		| exp  ABRE_COLCHETE exp FECHA_COLCHETE 						{;}
-		| ID															{if(contextCheck($1)) {markUsed($1);}}
+		| ID															{if(contextCheck($1)) {markUsed($1);}
+																		{memVal = getMemVal($1);}
+																		{emitRM("LD",ac,memVal,gp,"load id value");}}
 		| NOT exp  														{;}
-		| NUM															{emitRM("LDC",ac,$1,0,"load const");}//code from wiki
+		| NUM															{emitRM("LDC",ac,$1,0,"load const");}
 		| '(' exp ')' 													{;}
 		| 'true' 														{;}
 		| 'false'  														{;}
 ;
 //code from wiki
-
+// tenho que pegar o valor da tabela de simbolos
+// loc = st_lookup(tree->attr.name);
+      
 
 %%
 int main (int argc, char *argv[]) 
@@ -210,7 +214,6 @@ int main (int argc, char *argv[])
 	else
 		yyout = stdout;
 
-	//code from wiki
 	//emitComment("Standard prelude:");
 	emitRM("LD",mp,0,ac,"load maxaddress from location 0");
 	emitRM("ST",ac,0,ac,"clear location 0");
@@ -218,7 +221,6 @@ int main (int argc, char *argv[])
 	yyparse ();
 	//emitComment("End of execution.");
 	emitRO("HALT",0,0,0,"");
-	//code from wiki
 
 	/* Percorre a tabela de símbolos para achar ids declarados mas não utilizados */
 	symrec *ptr;

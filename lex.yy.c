@@ -825,7 +825,7 @@ YY_RULE_SETUP
 case 13:
 YY_RULE_SETUP
 #line 23 "lexico.l"
-{return ARITMETICO;}
+{yylval.cadeia= (char *) strdup(yytext); return ARITMETICO;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
