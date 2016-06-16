@@ -20,7 +20,7 @@ while 							{return WHILE;}
 ("+"|"-")?[0-9]+(".")?[0-9]*	{yylval.inteiro=  atoi(yytext); return NUM;}
 _?[a-zA-Z][a-zA-Z]*				{yylval.cadeia= (char *) strdup(yytext); return ID;}
 "="								{return ATRIBUICAO;}
-("<"|">")						{return RELACIONAL;}
+("<"|">"|"==")					{return RELACIONAL;}
 ("+"|"/"|"-"|"*")				{yylval.cadeia= (char *) strdup(yytext); return ARITMETICO;}
 "["								{return ABRE_COLCHETE;}
 "]"								{return FECHA_COLCHETE;}

@@ -1,0 +1,12 @@
+int main(){
+	int x, int fact
+	x = 3
+	fact = 1 
+	if(x < fact) {
+		while(x == 0){
+			fact = fact * x
+			x = x - 1
+		}
+	} 
+}
+

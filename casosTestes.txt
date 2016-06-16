@@ -1,5 +1,0 @@
-abrebloco _a= 1 + 1 fechabloco
-abrebloco _a= 1 < 2 fechabloco
-abrebloco _a= 1<2 fechabloco
-abrebloco while ( 2 ) abrebloco _a=1 / 1; _b = 2.15 fechabloco fechabloco
-abrebloco while ( _a < 1 + 1 ) abrebloco _a=1/1; _b=2.15 fechabloco fechabloco

@@ -17,6 +17,16 @@ int endMemData = 0;
 int memVal=0;
 int operador = 0;
 static int tmpOffset = 0;
+int savedLoc1=0,savedLoc2=0,currentLoc=0;
+
+/* TM location number for current instruction emission */
+static int emitLoc = 0 ;
+
+/* Highest TM location emitted so far
+   For use in conjunction with emitSkip,
+   emitBackup, and emitRestore */
+static int highEmitLoc = 0;
+
 /* pc = program counter  */
 #define  pc 7
 
@@ -40,12 +50,14 @@ static int tmpOffset = 0;
 
 
 void emitRO( char *op, int r, int s, int t, char *c)
-{ fprintf(yyout,":  %5s  %d,%d,%d \n",op,r,s,t);
+{ fprintf(yyout,"%3d:  %5s  %d,%d,%d \n",emitLoc++,op,r,s,t);
+if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
 } 
 
 void emitRM( char * op, int r, int d, int s, char *c)
 { 
-	fprintf(yyout,":  %5s  %d,%d(%d) \n",op,r,d,s);
+	fprintf(yyout,"%3d:  %5s  %d,%d(%d) \n",emitLoc++,op,r,d,s);
+	if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
 } 
 
 void install ( char *sym_name ) {
@@ -107,8 +119,42 @@ int getOp(char *a){
 	else if (strcmp(a, "*")==0){
 		return (4);
 	}
+	return(0);
 }
 
+int emitSkip( int howMany)
+{  int i = emitLoc;
+   emitLoc += howMany ;
+   if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
+   return i;
+} /* emitSkip */
+
+
+void emitBackup( int loc)
+{ 
+  emitLoc = loc ;
+} /* emitBackup */
+
+/* Procedure emitRestore restores the current 
+ * code position to the highest previously
+ * unemitted position
+ */
+void emitRestore(void)
+{ emitLoc = highEmitLoc;}
+
+/* Procedure emitRM_Abs converts an absolute reference 
+ * to a pc-relative reference when emitting a
+ * register-to-memory TM instruction
+ * op = the opcode
+ * r = target register
+ * a = the absolute location in memory
+ * c = a comment to be printed if TraceCode is TRUE
+ */
+void emitRM_Abs( char *op, int r, int a, char * c)
+{ fprintf(yyout,"%3d:  %5s  %d,%d(%d) \n",emitLoc,op,r,a-(emitLoc+1),pc);
+  ++emitLoc ;
+  if (highEmitLoc < emitLoc) highEmitLoc = emitLoc ;
+}
 %}
 
 %union {
@@ -167,7 +213,21 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 																			{memVal = getMemVal($1);}
 																			{emitRM("ST",ac,memVal,gp,"assign: store value");}}
 		| ID '[' exp ']' 	ATRIBUICAO exp								{if(contextCheck($1)) {markUsed($1);}}
-		| IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
+		// | IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
+		// | IF '(' exp ')' '{' lista_cmds '}'  	{;}
+		| IF '(' exp_rel ')' {savedLoc1 = emitSkip(1);} 
+				{savedLoc2 = emitSkip(1) ;
+			     currentLoc = emitSkip(0) ;
+			     emitBackup(savedLoc1) ;
+			     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
+			     currentLoc = emitSkip(0) ;
+			     emitBackup(savedLoc2) ;
+			     emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
+			     emitRestore();}
+		'{' lista_cmds '}'							{;}
+
+
+
 		| WHILE '(' exp ')' '{' lista_cmds '}' 							{;}
 		| ESCREVA '(' exp ')'			 								{emitRO("OUT",ac,0,0,"write ac");}//code from wiki
 		| LEIA '(' ID ')'			 									{emitRO("IN",ac,0,0,"read integer value");
@@ -175,9 +235,19 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 																        emitRM("ST",ac,memVal,gp,"read: store value");}
 ;
 
+exp_rel: ID 								 							{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
+		RELACIONAL												
+ 		ID 																{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
+ 																		{emitRO("SUB",ac,ac1,ac,"op <") ;
+													 		            emitRM("JLT",ac,2,pc,"br if true");
+															            emitRM("LDC",ac,0,ac,"false case") ;
+															            emitRM("LDA",pc,1,pc,"unconditional jmp") ;
+															            emitRM("LDC",ac,1,ac,"true case") ;}
+
 ;
 exp:	exp 															{emitRM("ST",ac,tmpOffset--,mp,"op: push left");} 
-		ARITMETICO exp 													{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
+		ARITMETICO  													
+		exp 															{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
 																		{operador=getOp($3)}
 																		{if(operador==1)emitRO("ADD",ac,ac1,ac,"op +");
 																		else if (operador==2)emitRO("SUB",ac,ac1,ac,"op -");
