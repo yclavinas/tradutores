@@ -228,8 +228,8 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 
 
 
-		| WHILE 														{savedLoc1 = emitSkip(0); emitRM_Abs("JEQ",ac,savedLoc1,"repeat: jmp back to body");}
-			'(' exp ')' '{' lista_cmds '}' 							
+		| WHILE 														{savedLoc1 = emitSkip(0);}
+			'(' exp_rel ')' '{' lista_cmds '}' 								{emitRM_Abs("JEQ",ac,savedLoc1,"repeat: jmp back to body");}
 		| ESCREVA '(' exp ')'			 								{emitRO("OUT",ac,0,0,"write ac");}//code from wiki
 		| LEIA '(' ID ')'			 									{emitRO("IN",ac,0,0,"read integer value");
          																memVal = getMemVal($3);
