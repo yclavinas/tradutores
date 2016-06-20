@@ -1,0 +1,181 @@
+Geração de Código
+Contents [hide]
+1 Recursos
+1.1 Slides
+1.2 Sobre a Máquina Virtual TM
+1.2.1 Ponteiros
+1.2.2 Visão Geral
+1.2.3 Conjunto de Instruções
+2 Exemplos
+2.1 imprima2.tm
+2.2 fatorial.tm
+3 Exercícios
+3.1 Especificação para Gerador de Código
+[edit] Recursos
+
+[edit] Slides
+PDF
+[edit] Sobre a Máquina Virtual TM
+[edit] Ponteiros
+Tiny Machine (TM), na página do Louden 
+(obrigada Leandro e Sinayra!!!)
+Versao linux em VM 
+Versão windows em VM (Os executáveis já estão gerados)
+[edit] Visão Geral
+Memória de instruções
+Memória de dados
+conjunto de 8 registradores de propósito geral
+(registrador 7 especial: pc ou program counter)
+endereços inteiros não negativos
+Declarações em C...
+#define IADDR_SIZE ...
+	/* tamanho da memoria de instrucoes */
+#define DADDR_SIZE ...
+	/* tamanho da memoria de dados */
+#define NO_REGS 8
+	/* quantidade de registradores */
+#define PC_REG 7
+	/* pc eh o reg 7 */
+
+Instruction iMem[IADDR_SIZE];
+int dMem[DADDR_SIZE];
+int reg[NO_REGS];
+...usadas no ciclo captura-executa:
+(código do livro, de edição anterior, o código de tm.c já está mais recente)
+do
+	/* captura */
+	currentInstruction = iMem[reg[pcRegNo]++];
+	/* executa instrução corrente */
+	...
+while (!(halt||error));
+Observações:
+Registradores e memória de dados são zerados no início.
+TM executa instruções começando por iMem[0]
+TM para quando executada uma instrução halt...
+...ou diante de erro
+Instruções 2 formatos:
+RO: somente registrador (3 endereços)
+opcode r,s,t
+r s t são registradores
+RM: registrador-memória (2 endereços)
+opcode r,d(s)
+r s são registradores
+d inteiro positivo ou negativo (deslocamento), LOGO d(s) é um endereço de memória a=d+reg[s]
+DMEM_ERR se a fora da área legal (0<=a<DADDR_SIZE)
+[edit] Conjunto de Instruções
+
+*************
+Instruções RO
+*************
+Formato opcode r,s,t
+
+HALT	interrompe execução (ignora operandos)
+IN		reg[r] <- valor inteiro lido da entrada padrão (s e t ignorados)
+OUT		reg[r] -> saída padrão (s e t ignorados)
+ADD		reg[r] = reg[s] + reg[t]
+SUB		reg[r] = reg[s] - reg[t]
+MUL		reg[r] = reg[s] * reg[t]
+DIV		reg[r] = reg[s] / reg[t] (pode gerar ZERO_DIV)
+
+*************
+Instruções RM
+*************
+Formato opcode r,d(s)
+(a=d+reg[s]; referência feita a dMem[a] gera DMEM_ERR se a<0 ou a>= DADDR_SIZE)
+
+LD		reg[r]=dMem[a]		(carrega r com valor de memoria em a)
+LDA		reg[r]=a		(carrega e endereça a diretamente em r)
+LDC		reg[r]=d		(carrega constante d diretamente em r)
+ST		dMem[a]=reg[r]		(armazena valor em r na posição de memória a)
+JLT		if (reg[r]<0) reg[PC_REG]=a (salta para instrução a se r negativo)
+JLE		if (reg[r]<=0) reg[PC_REG]=a
+JGE		if (reg[r]>=0) reg[PC_REG]=a
+JGT		if (reg[r]>0) reg[PC_REG]=a
+JEQ		if (reg[r]==0) reg[PC_REG]=a
+JNE		if (reg[r]!=0) reg[PC_REG]=a
+
+[edit] Exemplos
+
+[edit] imprima2.tm
+Arquivo-exemplo de código gerado para a TM, a partir do código de alto nível em Linguagem MLP, para atender exercício (1) da especificação (mostrado em sala).
+  0:     LD  6,0(0) 
+  1:     ST  0,0(0) 
+  2:    LDC  0,2(0) 
+  3:    OUT  0,0,0 
+  4:   HALT  0,0,0 
+Código de alto nível em MLP:
+{
+	escreva (2);
+}
+Modificações principais no .y para realizar a geração de código:
+Nas ações semânticas das regras gramaticais:
+// escrevendo o conteudo do registrador ac...
+cmd_saida:	ESCREVA '(' exp ')'
+	{
+		/* now output it */
+		emitRO("OUT",ac,0,0,"write ac");
+
+	}
+;
+// colocando o valor da constante no registrador ac, para ser impresso pelo OUT conforme acima
+exp:		NUM
+	{
+		emitRM("LDC",ac,$1,0,"load const");
+	}
+;
+No Main do .y, ANTES e DEPOIS de chamar o parser:
+//emitComment("Standard prelude:");
+emitRM("LD",mp,0,ac,"load maxaddress from location 0");
+emitRM("ST",ac,0,ac,"clear location 0");
+//emitComment("End of standard prelude.");
+
+	yyparse ();
+
+//emitComment("End of execution.");
+emitRO("HALT",0,0,0,"");
+Atenção: emitRO e emitRM estão no código do compilador Tiny, no módulo gerador de código CODE.C
+Já as chamadas a essas rotinas estão no módulo CGEN.C, na rotina genStmt e genExp.
+[edit] fatorial.tm
+Arquivo-exemplo de código gerado (manualmente) para a TM (vide Louden), a partir do código alto nível em Linguagem Tiny, para cálculo do fatorial (mostrado em sala).
+* recebe um inteiro, calcula fatorial e imprime
+0:IN 0,0,0	* reg[r] <- valor
+1:JLE 0,6(7)	* JLE if (reg[r]<=0) reg[7]=a
+2:LDC 1,1,0	* reg[r]=d
+3:LDC 2,1,0	* reg[r]=d
+4:MUL 1,1,0	* reg[r] = reg[s] * reg[t]
+5:SUB 0,0,2	* reg[r] = reg[s] - reg[t]
+6:JNE 0,-3(7)	* JNE if (reg[r]!=0) reg[7]=a
+7:OUT 1,0,0	* reg[r] -> saída padrão
+8:HALT 0,0,0	* interrompe execução (ignora operandos)
+* fim do prog
+*****************************
+* codigo Tiny correspondente:
+* read x;
+* if 0 < x then
+*	fact:=1;
+*	repeat
+*		fact:=fact*x;
+*		x:=x-1;
+*	until x=0;
+*	write fact
+* end
+[edit] Exercícios
+
+[edit] Especificação para Gerador de Código
+Recomendação geral: gerar código para a TM, a Tiny Machine do livro do Louden (vide info acima).
+Gerar código para o seguinte:
+(1) comando de saída (escrita) para os seguintes casos:
+(a) constante (ex.: imprima 2), vide exemplo acima para solução
+(b) identificador de variável (ex.: imprima a)
+Obs.: para que isso seja possível, é necessária a atualização da tabela de símbolos: alteração do registro para incluir campo para a localização de memória que será atribuída
+ao identificador de variável. Também será necessário alterar a rotina de inserção na TS para fazer a atribuição correta a tal campo
+(manter variável inteira e incrementá-la após a inserção de um novo identificador de variável, mas não de procedimento).
+Além disso, será preciso construir uma rotina nova para recuperar essa localização de memória antes de um acesso à memória para
+armazenamento de valor ou recuperação para carregamento em registrador.
+(c) expressão aritmética (ex.: imprima 2+a)
+(2) comando de atribuição (ex. a:=2+b)
+As considerações anteriores sobre constante, identificador, tratamento da TS e expressão aritmética aplicam-se também a esse caso.
+(3) comando de entrada (leia) para receber da entrada-padrão um valor a ser atribuído a um identificador de variável. Ex.: leia a
+Obs.: o valor deverá ser armazenado na memória, na localização de memória que consta na TS.
+(4) comando de controle (condicional e repetição)
+em breve...

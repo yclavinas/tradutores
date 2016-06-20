@@ -10,7 +10,7 @@ gcc:
 	gcc sintatico.tab.c lex.yy.c
 
 rm:
-	del sintatico.tab.c sintatico.tab.h lex.yy.c a.out
+	del sintatico.tab.c sintatico.tab.h lex.yy.c a.exe
 
 deb:
 	bison -v sintatico.y

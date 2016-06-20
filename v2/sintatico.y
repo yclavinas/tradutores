@@ -9,6 +9,7 @@
 
 #define YYDEBUG 1
 #define IMPRIMIR_TABELA_SIMBOLOS 1
+
 //global var
 extern FILE *yyin;
 extern FILE *yyout;
@@ -20,7 +21,7 @@ static int tmpOffset = 0;
 int savedLoc1=0,savedLoc2=0,currentLoc=0, savedLocWhile=0;
 
 /* TM location number for current instruction emission */
-static int emitLoc = 0 ;
+static int emitLoc = 0;
 
 /* Highest TM location emitted so far
    For use in conjunction with emitSkip,
@@ -28,12 +29,12 @@ static int emitLoc = 0 ;
 static int highEmitLoc = 0;
 
 /* pc = program counter  */
-#define  pc 7
+#define pc 7
 
 /* mp = "memory pointer" points
  * to top of memory (for temp storage)
  */
-#define  mp 6
+#define mp 6
 
 /* gp = "global pointer" points
  * to bottom of memory for (global)
@@ -42,29 +43,31 @@ static int highEmitLoc = 0;
 #define gp 5
 
 /* accumulator */
-#define  ac 0
+#define ac 0
 
 /* 2nd accumulator */
-#define  ac1 1
+#define ac1 1
+
 //end global
 
 
-void emitRO( char *op, int r, int s, int t, char *c)
-{ fprintf(yyout,"%3d:  %5s  %d,%d,%d \n",emitLoc++,op,r,s,t);
-if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
-} 
+void emitRO(char *op, int r, int s, int t, char *c) {
+	fprintf(yyout,"%3d:  %5s  %d,%d,%d \n",emitLoc++,op,r,s,t);
+	if (highEmitLoc < emitLoc)
+		highEmitLoc = emitLoc;
+}
 
-void emitRM( char * op, int r, int d, int s, char *c)
-{ 
+void emitRM(char * op, int r, int d, int s, char *c) { 
 	fprintf(yyout,"%3d:  %5s  %d,%d(%d) \n",emitLoc++,op,r,d,s);
-	if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
+	if (highEmitLoc < emitLoc)
+		highEmitLoc = emitLoc;
 } 
 
-void install ( char *sym_name ) {
+void install (char *sym_name) {
 	symrec *s;
 	s = getsym (sym_name);
 	if (s == 0) {
-		s = putsym (sym_name, endMemData); /* colocar parametro de install: char *type_name, adicionar à chamada de putsym */
+		s = putsym (sym_name, endMemData);
 		endMemData++;
 	}
 	else {
@@ -73,7 +76,7 @@ void install ( char *sym_name ) {
 	}
 }
 
-int contextCheck ( char *sym_name ) {
+int contextCheck (char *sym_name) {
 	if ( getsym( sym_name ) == 0 ) {
 		printf( "ERROR: '%s' is an undeclared identifier.\n", sym_name );
 		errors++;
@@ -100,7 +103,7 @@ int isUsed (char * sym_name) {
 	return 0;
 }
 
-int getMemVal( char *sym_name ){
+int getMemVal(char *sym_name) {
 	symrec *s;
 	s = getsym (sym_name);
 	return (s->address);
@@ -122,16 +125,16 @@ int getOp(char *a){
 	return(0);
 }
 
-int emitSkip( int howMany)
-{  int i = emitLoc;
-   emitLoc += howMany ;
-   if (highEmitLoc < emitLoc)  highEmitLoc = emitLoc ;
-   return i;
+int emitSkip(int howMany) {
+	int i = emitLoc;
+	emitLoc += howMany;
+	if (highEmitLoc < emitLoc)
+		highEmitLoc = emitLoc;
+	return i;
 } /* emitSkip */
 
 
-void emitBackup( int loc)
-{ 
+void emitBackup(int loc) { 
   emitLoc = loc ;
 } /* emitBackup */
 
@@ -139,8 +142,9 @@ void emitBackup( int loc)
  * code position to the highest previously
  * unemitted position
  */
-void emitRestore(void)
-{ emitLoc = highEmitLoc;}
+void emitRestore(void) {
+	emitLoc = highEmitLoc;
+}
 
 /* Procedure emitRM_Abs converts an absolute reference 
  * to a pc-relative reference when emitting a
@@ -150,10 +154,11 @@ void emitRestore(void)
  * a = the absolute location in memory
  * c = a comment to be printed if TraceCode is TRUE
  */
-void emitRM_Abs( char *op, int r, int a, char * c)
-{ fprintf(yyout,"%3d:  %5s  %d,%d(%d) \n",emitLoc,op,r,a-(emitLoc+1),pc);
-  ++emitLoc ;
-  if (highEmitLoc < emitLoc) highEmitLoc = emitLoc ;
+void emitRM_Abs( char *op, int r, int a, char * c) {
+	fprintf(yyout,"%3d:  %5s  %d,%d(%d) \n",emitLoc,op,r,a-(emitLoc+1),pc);
+	++emitLoc;
+	if (highEmitLoc < emitLoc)
+		highEmitLoc = emitLoc;
 }
 %}
 
@@ -187,7 +192,6 @@ void emitRM_Abs( char *op, int r, int a, char * c)
 %token LEIA
 %%
 
-
 programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 	{ printf ("Programa sintaticamente correto!\n\n"); }
 ;
 
@@ -196,7 +200,7 @@ var_declaration: 	var 												{;}
 					|													{;}
 ;
 
-var: type ID 															{install($2);} /* {install($1, $2);} */
+var: type ID 															{install($2);}
 ;
 
 
@@ -210,21 +214,21 @@ lista_cmds:	cmd															{;}
 			
 ; 
 cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
-																			{memVal = getMemVal($1);}
-																			{emitRM("ST",ac,memVal,gp,"assign: store value");}}
-		| ID '[' exp ']' 	ATRIBUICAO exp								{if(contextCheck($1)) {markUsed($1);}}
+																		{memVal = getMemVal($1);}
+																		{emitRM("ST",ac,memVal,gp,"assign: store value");}}
+		| ID '[' exp ']' ATRIBUICAO exp									{if(contextCheck($1)) {markUsed($1);}}
 		// | IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
 		// | IF '(' exp ')' '{' lista_cmds '}'  	{;}
-		| IF '(' exp_rel ')' {savedLoc1 = emitSkip(1);} 
-				{savedLoc2 = emitSkip(1) ;
-			     currentLoc = emitSkip(0) ;
-			     emitBackup(savedLoc1) ;
-			     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
-			     currentLoc = emitSkip(0) ;
-			     emitBackup(savedLoc2) ;
-			     emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
-			     emitRestore();}
-		'{' lista_cmds '}'							{;}
+		| IF '(' exp_rel ')' 											{savedLoc1 = emitSkip(1);}
+																		{savedLoc2 = emitSkip(1);
+																	     currentLoc = emitSkip(0);
+																	     emitBackup(savedLoc1);
+																	     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
+																	     currentLoc = emitSkip(0);
+																	     emitBackup(savedLoc2);
+																	     emitRM_Abs("LDA",pc,currentLoc,"jmp to end");
+																	     emitRestore();}
+			'{' lista_cmds '}'											{;}
 
 
 
@@ -232,14 +236,14 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 			'(' exp_rel ')'
 				{savedLoc1 = emitSkip(1);} 
 				{savedLoc2 = emitSkip(1) ;
-			     currentLoc = emitSkip(0) ;
+			     currentLoc = emitSkip(0);
 			     emitBackup(savedLoc1) ;
 			     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
 			     currentLoc = emitSkip(0) ;
 			     emitBackup(savedLoc2) ;
 			     emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
 			     emitRestore();}
-			     '{' lista_cmds '}' 								{emitRM_Abs("JEQ",ac,savedLocWhile,"repeat: jmp back to body");}
+			     '{' lista_cmds '}' 									{emitRM_Abs("JEQ",ac,savedLocWhile,"repeat: jmp back to body");}
 		| ESCREVA '(' exp ')'			 								{emitRO("OUT",ac,0,0,"write ac");}//code from wiki
 		| LEIA '(' ID ')'			 									{emitRO("IN",ac,0,0,"read integer value");
          																memVal = getMemVal($3);
@@ -249,21 +253,25 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 exp_rel: ID 								 							{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
 		RELACIONAL												
  		ID 																{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
- 																		{emitRO("SUB",ac,ac1,ac,"op <") ;
+ 																		{emitRO("SUB",ac,ac1,ac,"op <");
 													 		            emitRM("JLT",ac,2,pc,"br if true");
-															            emitRM("LDC",ac,0,ac,"false case") ;
-															            emitRM("LDA",pc,1,pc,"unconditional jmp") ;
-															            emitRM("LDC",ac,1,ac,"true case") ;}
+															            emitRM("LDC",ac,0,ac,"false case");
+															            emitRM("LDA",pc,1,pc,"unconditional jmp");
+															            emitRM("LDC",ac,1,ac,"true case");}
 
 ;
 exp:	exp 															{emitRM("ST",ac,tmpOffset--,mp,"op: push left");} 
 		ARITMETICO  													
 		exp 															{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
 																		{operador=getOp($3)}
-																		{if(operador==1)emitRO("ADD",ac,ac1,ac,"op +");
-																		else if (operador==2)emitRO("SUB",ac,ac1,ac,"op -");
-																		else if (operador==3)emitRO("DIV",ac,ac1,ac,"op /");
-																		else if (operador==4)emitRO("MUL",ac,ac1,ac,"op *");}
+																		{if(operador==1)
+																			emitRO("ADD",ac,ac1,ac,"op +");
+																		else if (operador==2)
+																			emitRO("SUB",ac,ac1,ac,"op -");
+																		else if (operador==3)
+																			emitRO("DIV",ac,ac1,ac,"op /");
+																		else if (operador==4)
+																			emitRO("MUL",ac,ac1,ac,"op *");}
 		
 		| exp RELACIONAL exp 											{;}
 		| exp AND exp 													{;}
