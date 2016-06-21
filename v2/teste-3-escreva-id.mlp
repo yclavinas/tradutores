@@ -1,8 +1,5 @@
 int main (){
 	int a
-	
-	a=2
-	
-	escreva(1)
+	a = 2
 	escreva(a)
 }

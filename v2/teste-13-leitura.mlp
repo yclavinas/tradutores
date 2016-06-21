@@ -1,0 +1,6 @@
+int main (){
+	int a, int b
+	leia(a)
+	b = a + 13
+	escreva(b)
+}
