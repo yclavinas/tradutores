@@ -174,14 +174,14 @@ void emitRM_Abs( char *op, int r, int a, char * c) {
 %token <cadeia>ARITMETICO
 %left ARITMETICO 	/*shift_reduce solver*/
 %token ATRIBUICAO
-%token BOOLEAN /*token <cadeia>BOOLEAN. Para pegar nome do tipo.*/
+%token BOOLEAN
 %token CLASS
 %token ELSE
 %token FECHA_COLCHETE
 %left FECHA_COLCHETE
 %token <cadeia>ID
 %token IF
-%token INT /*token <cadeia>INT. Para pegar nome do tipo.*/
+%token INT
 %token <inteiro>NUM
 %token NOT
 %left NOT
@@ -192,7 +192,7 @@ void emitRM_Abs( char *op, int r, int a, char * c) {
 %token LEIA
 %%
 
-programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 	{ printf ("Programa sintaticamente correto!\n\n"); }
+programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 	{printf ("Programa sintaticamente correto!\n\n");}
 ;
 
 var_declaration: 	var 												{;}
@@ -200,7 +200,7 @@ var_declaration: 	var 												{;}
 					|													{;}
 ;
 
-var: type ID 															{install($2);}
+var:	type ID 														{install($2);}
 ;
 
 
@@ -209,18 +209,21 @@ type:	BOOLEAN															{;}
 		| INT '['  ']'													{;}
 ;
 
-lista_cmds:	cmd															{;}
-			| cmd lista_cmds 											{;}
+lista_cmds:		cmd														{;}
+				| cmd lista_cmds 										{;}
 			
-; 
-cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
-																		{memVal = getMemVal($1);}
-																		{emitRM("ST",ac,memVal,gp,"assign: store value");}}
-		| ID '[' exp ']' ATRIBUICAO exp									{if(contextCheck($1)) {markUsed($1);}}
+;
+
+cmd:	ID ATRIBUICAO exp												{if(contextCheck($1))
+																			markUsed($1);
+																		memVal = getMemVal($1);
+																		emitRM("ST",ac,memVal,gp,"assign: store value");}
+		| ID '[' exp ']' ATRIBUICAO exp									{if(contextCheck($1))
+																			markUsed($1);}
 		// | IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
 		// | IF '(' exp ')' '{' lista_cmds '}'  	{;}
-		| IF '(' exp_rel ')' 											{savedLoc1 = emitSkip(1);}
-																		{savedLoc2 = emitSkip(1);
+		| IF '(' exp_rel ')' 											{savedLoc1 = emitSkip(1);
+																		 savedLoc2 = emitSkip(1);
 																	     currentLoc = emitSkip(0);
 																	     emitBackup(savedLoc1);
 																	     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
@@ -229,20 +232,17 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 																	     emitRM_Abs("LDA",pc,currentLoc,"jmp to end");
 																	     emitRestore();}
 			'{' lista_cmds '}'											{;}
-
-
-
 		| WHILE 														{savedLocWhile = emitSkip(0);}
 			'(' exp_rel ')'
-				{savedLoc1 = emitSkip(1);} 
-				{savedLoc2 = emitSkip(1) ;
-			     currentLoc = emitSkip(0);
-			     emitBackup(savedLoc1) ;
-			     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
-			     currentLoc = emitSkip(0) ;
-			     emitBackup(savedLoc2) ;
-			     emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
-			     emitRestore();}
+																		{savedLoc1 = emitSkip(1);} 
+																		{savedLoc2 = emitSkip(1) ;
+																	     currentLoc = emitSkip(0);
+																	     emitBackup(savedLoc1) ;
+																	     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
+																	     currentLoc = emitSkip(0) ;
+																	     emitBackup(savedLoc2) ;
+																	     emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
+																	     emitRestore();}
 			     '{' lista_cmds '}' 									{emitRM_Abs("JEQ",ac,savedLocWhile,"repeat: jmp back to body");}
 		| ESCREVA '(' exp ')'			 								{emitRO("OUT",ac,0,0,"write ac");}//code from wiki
 		| LEIA '(' ID ')'			 									{emitRO("IN",ac,0,0,"read integer value");
@@ -250,21 +250,29 @@ cmd:	ID ATRIBUICAO exp												{if(contextCheck($1)) {markUsed($1);}
 																        emitRM("ST",ac,memVal,gp,"read: store value");}
 ;
 
-exp_rel: ID 								 							{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
-		RELACIONAL												
- 		ID 																{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
- 																		{emitRO("SUB",ac,ac1,ac,"op <");
-													 		            emitRM("JLT",ac,2,pc,"br if true");
-															            emitRM("LDC",ac,0,ac,"false case");
-															            emitRM("LDA",pc,1,pc,"unconditional jmp");
-															            emitRM("LDC",ac,1,ac,"true case");}
-
+/*exp_rel:	ID 								 							{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
+			RELACIONAL
+ 			ID 															{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
+	 																	{emitRO("SUB",ac,ac1,ac,"op <");
+														 		        emitRM("JLT",ac,2,pc,"br if true");
+																        emitRM("LDC",ac,0,ac,"false case");
+																        emitRM("LDA",pc,1,pc,"unconditional jmp");
+																        emitRM("LDC",ac,1,ac,"true case");}*/
+exp_rel:	exp 								 						{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
+			RELACIONAL
+ 			exp 														{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
+	 																	emitRO("SUB",ac,ac1,ac,"op <");
+														 		        emitRM("JLT",ac,2,pc,"br if true");
+																        emitRM("LDC",ac,0,ac,"false case");
+																        emitRM("LDA",pc,1,pc,"unconditional jmp");
+																        emitRM("LDC",ac,1,ac,"true case");}
 ;
-exp:	exp 															{emitRM("ST",ac,tmpOffset--,mp,"op: push left");} 
+
+exp:	exp 															{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
 		ARITMETICO  													
-		exp 															{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
-																		{operador=getOp($3)}
-																		{if(operador==1)
+		exp 															{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
+																		operador=getOp($3)
+																		if(operador==1)
 																			emitRO("ADD",ac,ac1,ac,"op +");
 																		else if (operador==2)
 																			emitRO("SUB",ac,ac1,ac,"op -");
@@ -272,28 +280,23 @@ exp:	exp 															{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
 																			emitRO("DIV",ac,ac1,ac,"op /");
 																		else if (operador==4)
 																			emitRO("MUL",ac,ac1,ac,"op *");}
-		
-		| exp RELACIONAL exp 											{;}
-		| exp AND exp 													{;}
-		| exp  ABRE_COLCHETE exp FECHA_COLCHETE 						{;}
-		| ID															{if(contextCheck($1)) {markUsed($1);}
-																		{memVal = getMemVal($1);}
-																		{emitRM("LD",ac,memVal,gp,"load id value");}}
-		| NOT exp  														{;}
+		/*| exp AND exp 													{;}*/
+		/*| exp ABRE_COLCHETE exp FECHA_COLCHETE 							{;}*/
+		| ID															{if(contextCheck($1)) {
+																			markUsed($1);
+																		}
+																		memVal = getMemVal($1);
+																		emitRM("LD",ac,memVal,gp,"load id value");}
+		/*| NOT exp  														{;}*/
 		| NUM															{emitRM("LDC",ac,$1,0,"load const");}
 		| '(' exp ')' 													{;}
 		| 'true' 														{;}
 		| 'false'  														{;}
 ;
-//code from wiki
-// tenho que pegar o valor da tabela de simbolos
-// loc = st_lookup(tree->attr.name);
-      
 
 %%
-int main (int argc, char *argv[]) 
-{
-
+int main (int argc, char *argv[])  {
+	
 	/* abre arquivo de entrada se houver */
 	++argv; --argc;
 	if(argc > 0)
@@ -334,14 +337,14 @@ int main (int argc, char *argv[])
 
 	if (IMPRIMIR_TABELA_SIMBOLOS) {
 		/* Percorre a tabela de símbolos, caso setado*/
-		printf("\n******************");
-		printf("\nTABELA DE SIMBOLOS\n");
-		printf("******************");
-		printf("\nID\tUsado\tADDRESS");
+		printf("\n************");
+		printf("\nSYMBLE TABLE\n");
+		printf("************");
+		printf("\nID\tUSED\tADDRESS");
 		printf("\n-------------------\n");
 		ptr = sym_table;
 		while (ptr != NULL) {
-			printf("%s\t%s\t%d\n", ptr->name, ptr->used!=0? "sim" : "nao", ptr->address);
+			printf("%s\t%s\t%d\n", ptr->name, ptr->used!=0? "yes" : "no", ptr->address);
 			ptr = ptr->next;
 		}
 	}

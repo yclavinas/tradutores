@@ -2,9 +2,6 @@
 #include <stdio.h> 
 #include <string.h>
 #include "sintatico.tab.h"
-
-/*"int"							{yylval.cadeia= (char *) strdup(yytext); return INT;}*/
-/*"boolean"						{yylval.cadeia= (char *) strdup(yytext); return BOOLEAN;} */
 %}
 
 %%
@@ -21,7 +18,7 @@ while 							{return WHILE;}
 _?[a-zA-Z][a-zA-Z]*				{yylval.cadeia = (char *) strdup(yytext); return ID;}
 "="								{return ATRIBUICAO;}
 ("<"|">"|"==")					{return RELACIONAL;}
-("+"|"/"|"-"|"*")				{yylval.cadeia = (char *) strdup(yytext); return ARITMETICO;}
+("+"|"-"|"/"|"*")				{yylval.cadeia = (char *) strdup(yytext); return ARITMETICO;}
 "["								{return ABRE_COLCHETE;}
 "]"								{return FECHA_COLCHETE;}
 "!"								{return NOT;}
