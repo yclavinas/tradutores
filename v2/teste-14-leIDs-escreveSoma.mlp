@@ -1,6 +1,0 @@
-int main (){
-	int x, int y
-	leia(x)
-	leia(y)
-	escreva(x + y)
-}

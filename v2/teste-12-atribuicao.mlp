@@ -1,6 +1,0 @@
-int main (){
-	int a, int b
-	b = 3
-	a = b + 33
-	escreva(a / 3)
-}

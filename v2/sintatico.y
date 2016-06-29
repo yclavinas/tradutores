@@ -18,7 +18,7 @@ int endMemData = 0;
 int memVal=0;
 int operador = 0;
 static int tmpOffset = 0;
-int savedLoc1=0,savedLoc2=0,currentLoc=0, savedLocWhile=0;
+int savedLoc1=0,savedLoc2=0,currentLoc=0, savedLocWhile=0, qtdIF_S1=0;
 
 /* TM location number for current instruction emission */
 static int emitLoc = 0;
@@ -168,130 +168,129 @@ void emitRM_Abs( char *op, int r, int a, char * c) {
 }
 
 %token ABRE_COLCHETE
-%left ABRE_COLCHETE
 %token AND
-%left AND 			/*shift_reduce solver*/
 %token <cadeia>ARITMETICO
-%left ARITMETICO 	/*shift_reduce solver*/
 %token ATRIBUICAO
 %token BOOLEAN
 %token CLASS
 %token ELSE
+%token ESCREVA
 %token FECHA_COLCHETE
-%left FECHA_COLCHETE
 %token <cadeia>ID
 %token IF
 %token INT
-%token <inteiro>NUM
-%token NOT
-%left NOT
-%token RELACIONAL
-%left RELACIONAL 	/*shift_reduce solver*/
-%token WHILE
-%token ESCREVA
 %token LEIA
+%token NOT
+%token <inteiro>NUM
+%token RELACIONAL
+%token WHILE
+
+%left AND
+%left FECHA_COLCHETE
+%left ABRE_COLCHETE
+%left NOT
+%left ARITMETICO
+%left RELACIONAL
 %%
 
-programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}' 	{printf ("Programa sintaticamente correto!\n\n");}
+programa:	type CLASS '(' var_declaration ')' '{' var_declaration lista_cmds '}'	{printf ("Programa sintaticamente correto!\n\n");}
 ;
 
-var_declaration: 	var 												{;}
-					| var ',' var_declaration 							{;}
-					|													{;}
+var_declaration: 	var 						{;}
+					| var ',' var_declaration 	{;}
+					|							{;}
 ;
 
-var:	type ID 														{install($2);}
+var:	type ID 	{install($2);}
 ;
 
 
-type:	BOOLEAN															{;}
-		| INT 															{;}
-		| INT '['  ']'													{;}
+type:	INT		{;}
+		// | BOOLEAN 			{;}
+		// | INT '['  ']'	{;}
 ;
 
-lista_cmds:		cmd														{;}
-				| cmd lista_cmds 										{;}
+lista_cmds:		cmd					{;}
+				| cmd lista_cmds 	{;}
 			
 ;
 
-cmd:	ID ATRIBUICAO exp												{if(contextCheck($1))
-																			markUsed($1);
-																		memVal = getMemVal($1);
-																		emitRM("ST",ac,memVal,gp,"assign: store value");}
-		| ID '[' exp ']' ATRIBUICAO exp									{if(contextCheck($1))
-																			markUsed($1);}
+cmd:	ID
+		ATRIBUICAO
+		exp 
+		{if(contextCheck($1))
+			markUsed($1);
+		memVal = getMemVal($1);
+		emitRM("ST",ac,memVal,gp,"assign: store value");}
 		// | IF '(' exp ')' '{' lista_cmds '}'  ELSE '{' lista_cmds '}' 	{;}
-		// | IF '(' exp ')' '{' lista_cmds '}'  	{;}
-		| IF '(' exp_rel ')' 											{savedLoc1 = emitSkip(1);
-																		 savedLoc2 = emitSkip(1);
-																	     currentLoc = emitSkip(0);
-																	     emitBackup(savedLoc1);
-																	     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
-																	     currentLoc = emitSkip(0);
-																	     emitBackup(savedLoc2);
-																	     emitRM_Abs("LDA",pc,currentLoc,"jmp to end");
-																	     emitRestore();}
-			'{' lista_cmds '}'											{;}
-		| WHILE 														{savedLocWhile = emitSkip(0);}
-			'(' exp_rel ')'
-																		{savedLoc1 = emitSkip(1);} 
-																		{savedLoc2 = emitSkip(1) ;
-																	     currentLoc = emitSkip(0);
-																	     emitBackup(savedLoc1) ;
-																	     emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
-																	     currentLoc = emitSkip(0) ;
-																	     emitBackup(savedLoc2) ;
-																	     emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
-																	     emitRestore();}
-			     '{' lista_cmds '}' 									{emitRM_Abs("JEQ",ac,savedLocWhile,"repeat: jmp back to body");}
-		| ESCREVA '(' exp ')'			 								{emitRO("OUT",ac,0,0,"write ac");}//code from wiki
-		| LEIA '(' ID ')'			 									{emitRO("IN",ac,0,0,"read integer value");
-         																memVal = getMemVal($3);
-																        emitRM("ST",ac,memVal,gp,"read: store value");}
+		| IF 	'(' exp_rel ')'
+				{savedLoc1 = emitSkip(0);
+				 emitSkip(1);}
+				'{' lista_cmds '}'	{;}
+				{qtdIF_S1 = emitLoc - savedLoc1 - 1;
+				emitBackup(savedLoc1);
+				emitRM("JLE",ac,qtdIF_S1,pc,"br if true");
+				emitRestore();}
+		// | WHILE {savedLocWhile = emitSkip(0);}
+		// 		'(' exp_rel ')'
+		// 		{savedLoc1 = emitSkip(1);} 
+		// 		{savedLoc2 = emitSkip(1);
+		// 		currentLoc = emitSkip(0);
+		// 		emitBackup(savedLoc1);
+		// 		emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
+		// 		currentLoc = emitSkip(0);
+		// 		emitBackup(savedLoc2);
+		// 		emitRM_Abs("LDA",pc,currentLoc,"jmp to end");
+		// 		emitRestore();}
+		// 		'{' lista_cmds '}'
+		// 		{emitRM_Abs("JEQ",ac,savedLocWhile,"repeat: jmp back to body");}
+		| ESCREVA 	'(' exp ')'
+					{emitRO("OUT",ac,0,0,"write ac");}
+		| LEIA '(' ID ')'
+				{emitRO("IN",ac,0,0,"read integer value");
+				memVal = getMemVal($3);
+	        	emitRM("ST",ac,memVal,gp,"read: store value");}
 ;
 
-/*exp_rel:	ID 								 							{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
+exp_rel:	exp
+			{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
 			RELACIONAL
- 			ID 															{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");}
-	 																	{emitRO("SUB",ac,ac1,ac,"op <");
-														 		        emitRM("JLT",ac,2,pc,"br if true");
-																        emitRM("LDC",ac,0,ac,"false case");
-																        emitRM("LDA",pc,1,pc,"unconditional jmp");
-																        emitRM("LDC",ac,1,ac,"true case");}*/
-exp_rel:	exp 								 						{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
-			RELACIONAL
- 			exp 														{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
-	 																	emitRO("SUB",ac,ac1,ac,"op <");
-														 		        emitRM("JLT",ac,2,pc,"br if true");
-																        emitRM("LDC",ac,0,ac,"false case");
-																        emitRM("LDA",pc,1,pc,"unconditional jmp");
-																        emitRM("LDC",ac,1,ac,"true case");}
+ 			exp
+ 			{emitRM("ST",ac,tmpOffset--,mp,"op: push left");
+ 			emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
+ 			emitRM("LD",ac,++tmpOffset,mp,"op: load left");
+			emitRO("SUB",ac,ac1,ac,"op <");}
 ;
 
-exp:	exp 															{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
-		ARITMETICO  													
-		exp 															{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
-																		operador=getOp($3)
-																		if(operador==1)
-																			emitRO("ADD",ac,ac1,ac,"op +");
-																		else if (operador==2)
-																			emitRO("SUB",ac,ac1,ac,"op -");
-																		else if (operador==3)
-																			emitRO("DIV",ac,ac1,ac,"op /");
-																		else if (operador==4)
-																			emitRO("MUL",ac,ac1,ac,"op *");}
+exp:	exp 		{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
+		ARITMETICO
+		exp 		{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
+					operador=getOp($3);
+					if(operador==1) {
+						emitRO("ADD",ac,ac1,ac,"op +");
+					}
+						else if (operador==2) {
+							emitRO("SUB",ac,ac1,ac,"op -");
+						}
+							else if (operador==3) {
+								emitRO("DIV",ac,ac1,ac,"op /");
+							}
+								else if (operador==4){
+									emitRO("MUL",ac,ac1,ac,"op *");
+								}
+					}
 		/*| exp AND exp 													{;}*/
 		/*| exp ABRE_COLCHETE exp FECHA_COLCHETE 							{;}*/
-		| ID															{if(contextCheck($1)) {
-																			markUsed($1);
-																		}
-																		memVal = getMemVal($1);
-																		emitRM("LD",ac,memVal,gp,"load id value");}
-		/*| NOT exp  														{;}*/
-		| NUM															{emitRM("LDC",ac,$1,0,"load const");}
-		| '(' exp ')' 													{;}
-		| 'true' 														{;}
-		| 'false'  														{;}
+		| fator {;}
+		| '(' exp ')' 	{;}
+;
+
+fator:	| ID 	{if(contextCheck($1)) {
+					markUsed($1);
+				}
+				memVal = getMemVal($1);
+				emitRM("LD",ac,memVal,gp,"load id value");}
+		| NUM	{emitRM("LDC",ac,$1,0,"load const");}
 ;
 
 %%
@@ -341,7 +340,7 @@ int main (int argc, char *argv[])  {
 		printf("\nSYMBLE TABLE\n");
 		printf("************");
 		printf("\nID\tUSED\tADDRESS");
-		printf("\n-------------------\n");
+		printf("\n-----------------------\n");
 		ptr = sym_table;
 		while (ptr != NULL) {
 			printf("%s\t%s\t%d\n", ptr->name, ptr->used!=0? "yes" : "no", ptr->address);
