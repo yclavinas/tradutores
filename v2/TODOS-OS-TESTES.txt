@@ -188,7 +188,26 @@ int main (){
 	leia(num)
 	if (0 < num) {
 		fact = 1
-		while(num > 0) {
+		while(0 < num) {
+			fact = fact * num
+			num = num - 1
+		}
+		escreva(fact)
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+teste-23-fatorial-incrementado.mlp
+
+int main (){
+	int a, int b, int c, int fact
+	leia(num)
+	a = 0
+	b = 0
+	c = 0
+	if (0 < num) {
+		fact = 1
+		while((a + b) < (num + c)) {
 			fact = fact * num
 			num = num - 1
 		}
