@@ -159,17 +159,40 @@ int main (){
 	}
 }
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-(NÃO PASSOU)
-Esperado: OUT 3,2,1,9
-Obtido: OUT 3 somente
-teste-20-while-sala-de-aula.mlp
+teste-20-while-const-id.mlp
 
 int main (){
 	int num
-	num = 4
+	num = 2
 	while(0 < num){
 		num = num - 1
 		escreva (num)
+	}
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------
+teste-21-while-id-const.mlp
+
+int main (){
+	int num
+	num = 2
+	while(num < 5){
+		num = num + 1
+		escreva (num)
+	}
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------
+teste-22-fatorial.mlp
+
+int main (){
+	int num, int fact
+	leia(num)
+	if (0 < num) {
+		fact = 1
+		while(num > 0) {
+			fact = fact * num
+			num = num - 1
+		}
+		escreva(fact)
 	}
 }
 

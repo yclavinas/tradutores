@@ -18,7 +18,7 @@ int endMemData = 0;
 int memVal=0;
 int operador = 0;
 static int tmpOffset = 0;
-int savedLoc1=0,savedLoc2=0,currentLoc=0, savedLocWhile=0, qtdIF_S1=0;
+int savedLoc1=0,savedLoc2=0,currentLoc=0, savedLocWhile=0, qtdCmdsS1=0, qtdCmdsWhile=0, savedLocExpRelWhile=0, deslocExpRelWhile=0, savedLocStartCmdsWhile=0;
 
 /* TM location number for current instruction emission */
 static int emitLoc = 0;
@@ -206,7 +206,7 @@ var:	type ID 	{install($2);}
 
 
 type:	INT		{;}
-		// | BOOLEAN 			{;}
+		// | BOOLEAN 		{;}
 		// | INT '['  ']'	{;}
 ;
 
@@ -227,23 +227,21 @@ cmd:	ID
 				{savedLoc1 = emitSkip(0);
 				 emitSkip(1);}
 				'{' lista_cmds '}'	{;}
-				{qtdIF_S1 = emitLoc - savedLoc1 - 1;
+				{qtdCmdsS1 = emitLoc - savedLoc1 - 1;
 				emitBackup(savedLoc1);
-				emitRM("JLE",ac,qtdIF_S1,pc,"br if true");
+				emitRM("JLE",ac,qtdCmdsS1,pc,"br if true");
 				emitRestore();}
-		// | WHILE {savedLocWhile = emitSkip(0);}
-		// 		'(' exp_rel ')'
-		// 		{savedLoc1 = emitSkip(1);} 
-		// 		{savedLoc2 = emitSkip(1);
-		// 		currentLoc = emitSkip(0);
-		// 		emitBackup(savedLoc1);
-		// 		emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
-		// 		currentLoc = emitSkip(0);
-		// 		emitBackup(savedLoc2);
-		// 		emitRM_Abs("LDA",pc,currentLoc,"jmp to end");
-		// 		emitRestore();}
-		// 		'{' lista_cmds '}'
-		// 		{emitRM_Abs("JEQ",ac,savedLocWhile,"repeat: jmp back to body");}
+		| WHILE {savedLocWhile = emitSkip(0);}
+				'(' exp_rel ')'
+				{savedLocExpRelWhile = emitSkip(0);
+				savedLocStartCmdsWhile = emitSkip(1);}
+				'{' lista_cmds '}'
+				{qtdCmdsWhile = -(emitLoc - savedLocWhile + 1);
+				emitRM("JNE",ac,qtdCmdsWhile,pc,"jump if not 0");
+				deslocExpRelWhile = emitLoc - savedLocStartCmdsWhile - 1;
+				emitBackup(savedLocExpRelWhile);
+				emitRM("JEQ",ac,deslocExpRelWhile,pc,"jump if 0");
+				emitRestore();}
 		| ESCREVA 	'(' exp ')'
 					{emitRO("OUT",ac,0,0,"write ac");}
 		| LEIA '(' ID ')'
@@ -252,7 +250,7 @@ cmd:	ID
 	        	emitRM("ST",ac,memVal,gp,"read: store value");}
 ;
 
-exp_rel:	exp
+exp_rel:	exp {;}
 			{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
 			RELACIONAL
  			exp
@@ -265,22 +263,21 @@ exp_rel:	exp
 exp:	exp 		{emitRM("ST",ac,tmpOffset--,mp,"op: push left");}
 		ARITMETICO
 		exp 		{emitRM("LD",ac1,++tmpOffset,mp,"op: load left");
-					operador=getOp($3);
-					if(operador==1) {
-						emitRO("ADD",ac,ac1,ac,"op +");
-					}
+					 operador=getOp($3);
+						if(operador==1) {
+							emitRO("ADD",ac,ac1,ac,"op +");
+						}
 						else if (operador==2) {
 							emitRO("SUB",ac,ac1,ac,"op -");
 						}
-							else if (operador==3) {
-								emitRO("DIV",ac,ac1,ac,"op /");
-							}
-								else if (operador==4){
-									emitRO("MUL",ac,ac1,ac,"op *");
-								}
+						else if (operador==3) {
+							emitRO("DIV",ac,ac1,ac,"op /");
+						}
+						else if (operador==4){
+							emitRO("MUL",ac,ac1,ac,"op *");
+						}
 					}
 		/*| exp AND exp 													{;}*/
-		/*| exp ABRE_COLCHETE exp FECHA_COLCHETE 							{;}*/
 		| fator {;}
 		| '(' exp ')' 	{;}
 ;
@@ -351,8 +348,8 @@ int main (int argc, char *argv[])  {
 	fclose(yyin);
 	fclose(yyout);
 }
-yyerror (s) /* Called by yyparse on error */
+
+/* Called by yyparse on error */
+yyerror (s)
 	char *s;
-{
-	printf ("Problema com a analise sintatica!\n", s);
-}
+{printf ("Problema com a analise sintatica!\n", s);}
